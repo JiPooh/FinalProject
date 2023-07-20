@@ -6,13 +6,46 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
+    <Button
+        android:id="@+id/buttFlight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="70dp"
+        android:text="Flight"
+        app:layout_constraintBottom_toBottomOf="@+id/buttTriv"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/buttTriv" />
+
+    <Button
+        android:id="@+id/buttTriv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="250dp"
+        android:layout_marginEnd="70dp"
+        android:text="Trivia"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.81"
+        app:layout_constraintStart_toEndOf="@+id/buttFlight"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/buttBear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="150dp"
+        android:text="Bear"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/buttTriv"
+        app:layout_constraintStart_toStartOf="@+id/buttTriv"
+        app:layout_constraintTop_toBottomOf="@+id/buttTriv" />
+
+    <Button
+        android:id="@+id/buttCurr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Currency"
+        app:layout_constraintBottom_toBottomOf="@+id/buttBear"
+        app:layout_constraintEnd_toEndOf="@+id/buttFlight"
+        app:layout_constraintStart_toStartOf="@+id/buttFlight"
+        app:layout_constraintTop_toTopOf="@+id/buttBear" />
 </androidx.constraintlayout.widget.ConstraintLayout>
