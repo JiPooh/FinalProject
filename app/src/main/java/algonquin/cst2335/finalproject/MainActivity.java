@@ -2,8 +2,10 @@ package algonquin.cst2335.finalproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import algonquin.cst2335.finalproject.bear.Bear;
 import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,8 +24,8 @@ private ActivityBearBinding bear;
 
         });
         findViewById(R.id.buttBear).setOnClickListener(clk->{
-            bear = ActivityBearBinding.inflate(getLayoutInflater());
-            setContentView(bear.getRoot());
+            Intent bearInt = new Intent(MainActivity.this, Bear.class);
+            startActivity(bearInt);
         });
     }
 }
