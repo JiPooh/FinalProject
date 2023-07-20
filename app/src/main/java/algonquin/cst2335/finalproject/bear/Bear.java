@@ -28,7 +28,7 @@ public class Bear extends AppCompatActivity {
                     .setTitle("Question")
                     .setPositiveButton("Yes", (dialog, cl) -> {
                         //sharedPref save to phone
-                        });
+
                         Snackbar.make(findViewById(R.id.bearIMGRV), "You have saved this image, are you sure?", Snackbar.LENGTH_LONG)
                                 .setAction("UNDO", clck -> {
                                     //remove from phone
