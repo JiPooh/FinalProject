@@ -9,7 +9,6 @@ import algonquin.cst2335.finalproject.bear.Bear;
 import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
 
 public class MainActivity extends AppCompatActivity {
-private ActivityBearBinding bear;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
