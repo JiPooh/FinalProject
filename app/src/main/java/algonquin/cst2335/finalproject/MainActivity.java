@@ -10,6 +10,9 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
+
+import com.google.android.material.snackbar.Snackbar;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -18,7 +21,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toast.makeText(this, "Welcome :)", Toast.LENGTH_SHORT).show();
         showAlertDialog();
-        findViewById(R.id.buttFlight).setOnClickListener(clk -> {
+
+        findViewById(R.id.buttFlight).setOnClickListener(clk->{
+            Intent flightIntent = new Intent(MainActivity.this, flightTracker.class);
+            startActivity(flightIntent);
             showSnackbar("Flight");
         });
         findViewById(R.id.buttTriv).setOnClickListener(clk -> {
@@ -46,4 +52,3 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton("OK", null)
                     .show();
         }
-}
