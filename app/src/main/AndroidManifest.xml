@@ -16,6 +16,15 @@
             android:name=".TriviaActivity"
             android:exported="false" />
         <activity
+            android:name=".bear.Bear"
+            android:exported="false" />
+        <activity
+            android:name=".CurrencyConverter"
+            android:exported="false" />
+        <activity
+            android:name=".flightTracker"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
