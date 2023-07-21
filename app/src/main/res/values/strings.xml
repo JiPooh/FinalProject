@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">FinalProject</string>
+    <string name="main_edit_message">Input Airport Code</string>
+    <string name="button1_message">Submit</string>
 </resources>
