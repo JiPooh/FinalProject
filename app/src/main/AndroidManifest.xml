@@ -13,10 +13,13 @@
         android:theme="@style/Theme.FinalProject"
         tools:targetApi="31">
         <activity
-
+            android:name=".bear.Bear"
+            android:exported="false" />
+        <activity
             android:name=".CurrencyConverter"
+            android:exported="false" />
+        <activity
             android:name=".flightTracker"
-
             android:exported="false" />
         <activity
             android:name=".MainActivity"

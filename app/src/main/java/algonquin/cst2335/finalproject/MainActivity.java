@@ -13,8 +13,10 @@ import com.google.android.material.snackbar.Snackbar;
 
 import com.google.android.material.snackbar.Snackbar;
 
-public class MainActivity extends AppCompatActivity {
+import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
 
+public class MainActivity extends AppCompatActivity {
+private ActivityBearBinding bear;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
         });
         findViewById(R.id.buttBear).setOnClickListener(clk -> {
+            Intent bearIntent = new Intent(MainActivity.this, Bear.class);
+            startActivity(bearIntent);
             showSnackbar("Bear");
         });
     }
