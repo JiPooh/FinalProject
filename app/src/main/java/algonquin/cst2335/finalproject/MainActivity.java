@@ -29,7 +29,9 @@ private ActivityBearBinding bear;
             startActivity(flightIntent);
             showSnackbar("Flight");
         });
-        findViewById(R.id.buttTriv).setOnClickListener(clk -> {
+        findViewById(R.id.buttTriv).setOnClickListener(clk->{
+            Intent triviaIntent = new Intent(MainActivity.this , TriviaActivity.class);
+            startActivity(triviaIntent) ;
             showSnackbar("Trivia");
         });
         findViewById(R.id.buttCurr).setOnClickListener(clk -> {
