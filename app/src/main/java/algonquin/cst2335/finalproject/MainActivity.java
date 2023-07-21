@@ -2,6 +2,7 @@ package algonquin.cst2335.finalproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 
@@ -15,6 +16,9 @@ public class MainActivity extends AppCompatActivity {
 
         });
         findViewById(R.id.buttTriv).setOnClickListener(clk->{
+            Intent triviaIntent = new Intent(MainActivity.this , TriviaActivity.class);
+
+            startActivity(triviaIntent) ;
 
         });
         findViewById(R.id.buttCurr).setOnClickListener(clk->{

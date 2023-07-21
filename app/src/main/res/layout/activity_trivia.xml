@@ -2,8 +2,93 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/triv"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".TriviaActivity">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/triviaList"
+        android:layout_width="136dp"
+        android:layout_height="384dp"
+        android:layout_marginStart="34dp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="336dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="15dp"
+        android:text="GoBack"
+        app:layout_constraintStart_toStartOf="@+id/randomButton"
+        app:layout_constraintTop_toBottomOf="@+id/randomButton" />
+
+    <Button
+        android:id="@+id/randomButton"
+        android:layout_width="338dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="35dp"
+        android:text="RandomPlay"
+        app:layout_constraintStart_toStartOf="@+id/triviaList"
+        app:layout_constraintTop_toBottomOf="@+id/triviaList" />
+
+    <TextView
+        android:id="@+id/nameView"
+        android:layout_width="143dp"
+        android:layout_height="22dp"
+        android:layout_marginTop="30dp"
+        android:text="Enter your name "
+        app:layout_constraintStart_toStartOf="@+id/nameText"
+        app:layout_constraintTop_toBottomOf="@+id/nameText" />
+
+    <EditText
+        android:id="@+id/nameText"
+        android:layout_width="159dp"
+        android:layout_height="37dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="60dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Name"
+        app:layout_constraintStart_toEndOf="@+id/triviaList"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="119dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="30dp"
+        android:text="choose from 1-50 question"
+        app:layout_constraintStart_toStartOf="@+id/nameView"
+        app:layout_constraintTop_toBottomOf="@+id/nameView" />
+
+    <EditText
+        android:id="@+id/questionText"
+        android:layout_width="125dp"
+        android:layout_height="28dp"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:inputType="number"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <Button
+        android:id="@+id/testButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="topic"
+        app:layout_constraintStart_toStartOf="@+id/testView"
+        app:layout_constraintTop_toBottomOf="@+id/testView" />
+
+    <ImageView
+        android:id="@+id/testView"
+        android:layout_width="77dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="@+id/questionText"
+        app:layout_constraintTop_toBottomOf="@+id/questionText"
+        app:srcCompat="@drawable/ic_launcher_background" />
 </androidx.constraintlayout.widget.ConstraintLayout>
