@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">FinalProject</string>
+    <string name="currency_edit_message">Input Currency To Convert</string>
+    <string name="currency_button_message">Submit</string>
 </resources>
