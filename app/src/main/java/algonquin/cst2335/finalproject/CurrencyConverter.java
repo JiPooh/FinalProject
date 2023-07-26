@@ -19,7 +19,7 @@ import com.google.android.material.snackbar.Snackbar;
 import algonquin.cst2335.finalproject.databinding.ActivityCurrencyConverterBinding;
 
 public class CurrencyConverter extends AppCompatActivity {
-    private Button toastButton;
+    private Button currencySubmitButton;
 
     private ActivityCurrencyConverterBinding binding;
     private static final String PREF_NAME = "MyPreferences";
@@ -59,8 +59,8 @@ public class CurrencyConverter extends AppCompatActivity {
         String savedBaseCurrency = sharedPreferences.getString(KEY_BASE_CURRENCY, "");
         editTextBaseCurrency.setText(savedBaseCurrency);
 
-        toastButton = findViewById(R.id.currency_submitButton);
-        toastButton.setOnClickListener(new View.OnClickListener() {
+        currencySubmitButton = findViewById(R.id.currency_submitButton);
+        currencySubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showToast();
