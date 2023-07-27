@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Convertisseur d\'argent</string>
+    <string name="base_currency_edit_message">Type d\'argent de base </string>
+    <string name="end_currency_edit_message">Type d\'argent souhaité</string>
+    <string name="amount_edit_message">Somme d\'argent</string>
+    <string name="currency_button_message">Soumettre</string>
+    <string name="helpMessage">1.Indique le type d\'argent de base (ex: USD)\n2. Indique le type d\'argent souhaité (ex: CAD)\n3. Indique le montant d\'argent à convertir (ex: 100)\n4. Appuyez sur le bouton \'Soumettre\'</string>
+    <string name="helpTitle">Comment utiliser le Convertisseur d\'argent</string>
+    <string name="result_message">Le resultat: $</string>
+</resources>

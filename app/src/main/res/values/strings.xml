@@ -6,4 +6,6 @@
     <string name="currency_button_message">Submit</string>
     <string name="helpMessage">1. Enter a base currency (ex: USD)\n2. Enter desired currency (ex: CAD)\n3. Enter amount to convert (ex: 1000)\n4. Press submit button</string>
     <string name="helpTitle">How to use the Currency Converter</string>
+    <string name="result_message">The resulting currency is: $</string>
+
 </resources>

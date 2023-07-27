@@ -41,7 +41,6 @@ public class CurrencyConverter extends AppCompatActivity {
     private static final String KEY_BASE_CURRENCY = "BaseCurrency";
     private static final String KEY_END_CURRENCY = "EndCurrency";
     private static final String KEY_AMOUNT = "Amount";
-
     protected ArrayList<String> conversions =new ArrayList<>();
     private EditText editTextAmount;
     private EditText editTextEndCurrency;
@@ -173,7 +172,7 @@ public class CurrencyConverter extends AppCompatActivity {
                             rateForAmount = currencyData.getString("rate_for_amount");
                             String finalRateForAmount = rateForAmount;
                             runOnUiThread( (  )  -> {
-                                binding.resultTextView.setText("The resulting currency is:" + finalRateForAmount);
+                                binding.resultTextView.setText("The resulting currency is: $" + finalRateForAmount);
                                 binding.resultTextView.setVisibility(View.VISIBLE);
                             });
                         } catch (JSONException e) {
