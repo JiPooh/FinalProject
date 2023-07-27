@@ -1,4 +1,4 @@
-package algonquin.cst2335.finalproject.bear;
+package algonquin.cst2335.finalproject;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,35 +7,87 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Base64;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import algonquin.cst2335.finalproject.R;
+import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
 
 public class Bear extends AppCompatActivity {
     private Bitmap bearImg = null;
+    private RequestQueue bearQueue = null;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bear);
+        bearQueue = Volley.newRequestQueue(this);
+        ActivityBearBinding bearBinding = ActivityBearBinding.inflate(getLayoutInflater());
+        sharedPreferences = getSharedPreferences("bearPref", MODE_PRIVATE);
+        SharedPreferences.Editor bearEdit = sharedPreferences.edit();
+        AtomicInteger bearNum = new AtomicInteger(sharedPreferences.getInt("bearNum", 0));
 
-        findViewById(R.id.bearGen).setOnClickListener(clk -> {
+        bearBinding.bearGen.setOnClickListener(clk -> {
             //generate bear
-            //save to shared pref
+            boolean validInt = false;
+            while(validInt == false) {
+                try {
+                    int bearWidth = Integer.parseInt(String.valueOf(bearBinding.bearWidth));
+                    int bearHeight = Integer.parseInt(String.valueOf(bearBinding.bearHeight));
+                    String bearURL = "https://placebear.com/" + bearWidth + "/" + bearHeight + "";
+                    /*
+                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, bearURL, null,
+                            (response) -> {
+                                //
+                            },
+                            (error) -> {
+                                //
+                            });
 
+                    bearQueue.add(request);
+                    */
+                    ImageRequest bearImg = new ImageRequest(bearURL, new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap response) {
+                            FileOutputStream bearOut = null;
+                            try{
+                                bearOut = openFileOutput("bear" + bearNum + "PNG", Context.MODE_PRIVATE);
+                                response.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
+                                bearOut.flush();
+                                bearOut.close();
+
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, 1024, 1024, ImageView.ScaleType.CENTER, null,
+                            (error)->{});
+                    bearQueue.add(bearImg);
+                    validInt = true;
+                }catch(NumberFormatException e){
+                    Toast.makeText(this, "Invalid input; Please enter integer values", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            bearNum.getAndIncrement();
+            bearEdit.putInt("bearNum", bearNum.get());
+            bearEdit.apply();
+            //save resolution used previously to shared pref
             Toast.makeText(this, "Bear has been generated!", Toast.LENGTH_SHORT).show();
         });
-        findViewById(R.id.bearSave).setOnClickListener(clk -> {
+        bearBinding.bearSave.setOnClickListener(clk -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(Bear.this);
             builder.setMessage("Do you wish to save this image?")
                     .setTitle("Question")
