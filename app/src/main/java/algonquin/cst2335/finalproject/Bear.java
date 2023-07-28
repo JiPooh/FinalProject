@@ -2,6 +2,9 @@ package algonquin.cst2335.finalproject;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -19,32 +22,46 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
+import algonquin.cst2335.finalproject.viewModel.BearViewModel;
 
 public class Bear extends AppCompatActivity {
     private Bitmap bearImg = null;
     private RequestQueue bearQueue = null;
     private SharedPreferences sharedPreferences;
+    private RecyclerView.Adapter bearAdapter;
+    private BearViewModel bearViewModel;
+    private ArrayList<Bitmap> bearImages;
+    private Bitmap pictureGen = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         bearQueue = Volley.newRequestQueue(this);
         ActivityBearBinding bearBinding = ActivityBearBinding.inflate(getLayoutInflater());
+        setContentView(bearBinding.getRoot());
+        bearViewModel = new ViewModelProvider(this).get(BearViewModel.class);
+        bearImages = bearViewModel.bearImages.getValue();
         sharedPreferences = getSharedPreferences("bearPref", MODE_PRIVATE);
         SharedPreferences.Editor bearEdit = sharedPreferences.edit();
         AtomicInteger bearNum = new AtomicInteger(sharedPreferences.getInt("bearNum", 0));
 
+        RecyclerView bearRecycle = bearBinding.bearIMGRV;
+        bearRecycle.setLayoutManager(new LinearLayoutManager(this));
+        bearRecycle.setAdapter(bearAdapter);
+
+
+        if(bearImages == null){
+            bearViewModel.bearImages.postValue(bearImages = new ArrayList<Bitmap>());
+        }
         bearBinding.bearGen.setOnClickListener(clk -> {
-            //generate bear
-            boolean validInt = false;
-            while(validInt == false) {
-                try {
-                    int bearWidth = Integer.parseInt(String.valueOf(bearBinding.bearWidth));
-                    int bearHeight = Integer.parseInt(String.valueOf(bearBinding.bearHeight));
-                    String bearURL = "https://placebear.com/" + bearWidth + "/" + bearHeight + "";
+            try {
+                String bearWidth = bearBinding.bearWidth.getText().toString();
+                String bearHeight = bearBinding.bearHeight.getText().toString();
+                String bearURL = "https://placebear.com/" + Integer.parseInt(bearWidth) + "/" + Integer.parseInt(bearHeight) + "";
                     /*
                     JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, bearURL, null,
                             (response) -> {
@@ -56,36 +73,21 @@ public class Bear extends AppCompatActivity {
 
                     bearQueue.add(request);
                     */
-                    ImageRequest bearImg = new ImageRequest(bearURL, new Response.Listener<Bitmap>() {
-                        @Override
-                        public void onResponse(Bitmap response) {
-                            FileOutputStream bearOut = null;
-                            try{
-                                bearOut = openFileOutput("bear" + bearNum + "PNG", Context.MODE_PRIVATE);
-                                response.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
-                                bearOut.flush();
-                                bearOut.close();
-
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, 1024, 1024, ImageView.ScaleType.CENTER, null,
-                            (error)->{});
-                    bearQueue.add(bearImg);
-                    validInt = true;
-                }catch(NumberFormatException e){
-                    Toast.makeText(this, "Invalid input; Please enter integer values", Toast.LENGTH_SHORT).show();
-                }
+                ImageRequest bearImg = new ImageRequest(bearURL, new Response.Listener<Bitmap>() {
+                    @Override
+                    public void onResponse(Bitmap response) {
+                        bearBinding.bearView.setImageBitmap(response);
+                        pictureGen = response;
+                    }
+                }, 1024, 1024, ImageView.ScaleType.CENTER, null,
+                        (error) -> {
+                        });
+                bearQueue.add(bearImg);
+                Toast.makeText(this, "Bear has been generated!", Toast.LENGTH_SHORT).show();
+            }catch (NumberFormatException e){
+                Toast.makeText(this, "Please enter integer as values", Toast.LENGTH_SHORT).show();
             }
-
-            bearNum.getAndIncrement();
-            bearEdit.putInt("bearNum", bearNum.get());
-            bearEdit.apply();
             //save resolution used previously to shared pref
-            Toast.makeText(this, "Bear has been generated!", Toast.LENGTH_SHORT).show();
         });
         bearBinding.bearSave.setOnClickListener(clk -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(Bear.this);
@@ -94,22 +96,45 @@ public class Bear extends AppCompatActivity {
                     .setPositiveButton("Yes", (dialog, cl) -> {
                         //sharedPref save to phone
                         //saveBearToSharedPreferences(bearImg);
-                        FileOutputStream bearOut = null;
-                        try {
-                            bearOut = openFileOutput("bearImg.png", Context.MODE_PRIVATE);
-                            bearImg.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
-                            bearOut.flush();
-                            bearOut.close();
-                            Toast.makeText(this, "toast to check if this try block activated", Toast.LENGTH_SHORT).show();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        if(pictureGen != null) {
+                            FileOutputStream bearOut = null;
+                            try {
+                                bearOut = openFileOutput("bear" + bearNum.get() + "PNG", Context.MODE_PRIVATE);
+                                pictureGen.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
+                                bearOut.flush();
+                                bearOut.close();
+                                bearAdapter.notifyItemInserted(bearImages.size()-1);
+
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            Snackbar.make(bearBinding.bearIMGRV, "You have saved this image, are you sure?", Snackbar.LENGTH_LONG)
+                                    .setAction("UNDO", clck -> {
+                                        //remove from phone
+
+                                    })
+                                    .show();
+                        }else{
+                            Toast.makeText(this, "No image is generated", Toast.LENGTH_SHORT).show();
                         }
 
-                        Snackbar.make(findViewById(R.id.bearIMGRV), "You have saved this image, are you sure?", Snackbar.LENGTH_LONG)
-                                .setAction("UNDO", clck -> {
-                                    //remove from phone
+            })
+                    .setNegativeButton("No", (dialog, cl) -> {
+                    })
+                    .create().show();
+
+            bearNum.getAndIncrement();
+            bearEdit.putInt("bearNum", bearNum.get());
+            bearEdit.apply();
+        });
+        //display img on recycler view
+
+
+    }
+
 /*
     private void deleteBearImage() {
         // Get the image file path from SharedPreferences
@@ -136,16 +161,6 @@ public class Bear extends AppCompatActivity {
     }
 }
 */
-                                })
-                                .show();
-                    })
-                    .setNegativeButton("No", (dialog, cl) -> {
-                    })
-                    .create().show();
-        });
-        //display img on recycler view
-
-    }
 
 //    private void saveBearToSharedPreferences(Bitmap bearImg) {
 //        SharedPreferences preferences = getSharedPreferences("bearImg.png", Context.MODE_PRIVATE);

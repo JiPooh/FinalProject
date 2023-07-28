@@ -6,14 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".Bear">
 
+    <Toolbar
+        android:id="@+id/bearTool"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="This is the Bear page, where user inputs desired width and height of the picture and a random bear pictures"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/bearTool" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/bearWidth"
@@ -32,7 +39,8 @@
         app:layout_constraintBottom_toTopOf="@+id/bearSave"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.859"
-        app:layout_constraintStart_toEndOf="@+id/bearWidth" />
+        app:layout_constraintStart_toEndOf="@+id/bearWidth"
+        app:layout_constraintTop_toTopOf="@+id/bearWidth" />
 
     <TextView
         android:id="@+id/heightBear"
@@ -50,15 +58,14 @@
         android:layout_height="wrap_content"
         android:text="width"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bearIMGRV" />
+        app:layout_constraintTop_toBottomOf="@+id/bearView" />
 
     <Button
         android:id="@+id/bearSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="260dp"
         android:text="save"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/bearHeight"
         app:layout_constraintEnd_toEndOf="@+id/bearGen"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/bearGen" />
@@ -74,8 +81,18 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bearIMGRV"
-        android:layout_width="409dp"
-        android:layout_height="312dp"
+        android:layout_width="408dp"
+        android:layout_height="327dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bearHeight" />
+
+    <ImageView
+        android:id="@+id/bearView"
+        android:layout_width="411dp"
+        android:layout_height="219dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:layout_editor_absoluteX="2dp" />
+        tools:srcCompat="@tools:sample/avatars" />
 </androidx.constraintlayout.widget.ConstraintLayout>
