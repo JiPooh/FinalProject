@@ -7,10 +7,11 @@
     tools:context=".viewModel.BearViewModel">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/bearImgView"
         android:layout_width="match_parent"
-        android:layout_height="128dp"
+        android:layout_height="150dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@tools:sample/avatars" />

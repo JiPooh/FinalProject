@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">최후의 과제</string>
+    <string name="bear_helpT">도움말</string>
+    <string name="bear_intro">곰돌이 사진을 만들어 보세요!</string>
+    <string name="bear_generate">만들기</string>
+    <string name="bear_height">사진의 높이</string>
+    <string name="bear_width">사진의 넓이</string>
+    <string name="bear_save">저장하기</string>
+</resources>

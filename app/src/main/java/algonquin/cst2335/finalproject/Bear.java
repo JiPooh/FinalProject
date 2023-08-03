@@ -1,8 +1,10 @@
 package algonquin.cst2335.finalproject;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -10,6 +12,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -26,6 +33,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
+import algonquin.cst2335.finalproject.databinding.ActivityBearViewModelBinding;
 import algonquin.cst2335.finalproject.viewModel.BearViewModel;
 
 public class Bear extends AppCompatActivity {
@@ -36,6 +44,14 @@ public class Bear extends AppCompatActivity {
     private BearViewModel bearViewModel;
     private ArrayList<Bitmap> bearImages;
     private Bitmap pictureGen = null;
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.bear_menu, menu);
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +64,36 @@ public class Bear extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("bearPref", MODE_PRIVATE);
         SharedPreferences.Editor bearEdit = sharedPreferences.edit();
         AtomicInteger bearNum = new AtomicInteger(sharedPreferences.getInt("bearNum", 0));
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
 
-        RecyclerView bearRecycle = bearBinding.bearIMGRV;
-        bearRecycle.setLayoutManager(new LinearLayoutManager(this));
-        bearRecycle.setAdapter(bearAdapter);
+        bearBinding.bearIMGRV.setLayoutManager(layoutManager);
+        bearBinding.bearIMGRV.setAdapter(bearAdapter = new RecyclerView.Adapter<BearRowHolder>() {
+            @NonNull
+            @Override
+            public BearRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                ActivityBearViewModelBinding bVBinding = ActivityBearViewModelBinding.inflate(getLayoutInflater());
+                return new BearRowHolder(bVBinding.getRoot());
+            }
+
+            @Override
+            public void onBindViewHolder(@NonNull BearRowHolder holder, int position) {
+                Bitmap obj = bearImages.get(position);
+                holder.bearPic.setImageBitmap(obj);
+                int imageWidth = obj.getWidth(); // Width of the bitmap
+                int imageHeight = obj.getHeight(); // Height of the bitmap
+                int targetHeight = 400; // Adjust the target height as needed
+                int targetWidth = (int) ((float) targetHeight * (float) imageWidth / (float) imageHeight);
+                holder.bearPic.getLayoutParams().width = targetWidth;
+                holder.bearPic.getLayoutParams().height = targetHeight;
+            }
+
+            @Override
+            public int getItemCount() {
+                return bearImages.size();
+            }
+        });
+
+        setSupportActionBar(bearBinding.bearTool);
 
 
         if(bearImages == null){
@@ -62,22 +104,12 @@ public class Bear extends AppCompatActivity {
                 String bearWidth = bearBinding.bearWidth.getText().toString();
                 String bearHeight = bearBinding.bearHeight.getText().toString();
                 String bearURL = "https://placebear.com/" + Integer.parseInt(bearWidth) + "/" + Integer.parseInt(bearHeight) + "";
-                    /*
-                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, bearURL, null,
-                            (response) -> {
-                                //
-                            },
-                            (error) -> {
-                                //
-                            });
-
-                    bearQueue.add(request);
-                    */
                 ImageRequest bearImg = new ImageRequest(bearURL, new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap response) {
                         bearBinding.bearView.setImageBitmap(response);
                         pictureGen = response;
+                        bearViewModel.bearImage.postValue(response);
                     }
                 }, 1024, 1024, ImageView.ScaleType.CENTER, null,
                         (error) -> {
@@ -99,11 +131,12 @@ public class Bear extends AppCompatActivity {
                         if(pictureGen != null) {
                             FileOutputStream bearOut = null;
                             try {
-                                bearOut = openFileOutput("bear" + bearNum.get() + "PNG", Context.MODE_PRIVATE);
+                                bearOut = openFileOutput("bear" + bearNum.get() + ".PNG", Context.MODE_PRIVATE);
                                 pictureGen.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
                                 bearOut.flush();
                                 bearOut.close();
-                                bearAdapter.notifyItemInserted(bearImages.size()-1);
+                                bearImages.add(pictureGen);
+                                bearAdapter.notifyItemInserted(bearImages.size()-1); //problem here
 
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
@@ -131,49 +164,35 @@ public class Bear extends AppCompatActivity {
             bearEdit.apply();
         });
         //display img on recycler view
-
+        bearViewModel.bearImage.observe(this, a->{
+            bearBinding.//
+        });
 
     }
 
-/*
-    private void deleteBearImage() {
-        // Get the image file path from SharedPreferences
-        SharedPreferences prefs = getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE);
-        String imagePath = prefs.getString(IMAGE_FILE_PATH_KEY, "");
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+        if(item.getItemId() == R.id.bear_help){
+            AlertDialog.Builder builder = new AlertDialog.Builder(Bear.this);
+            builder.setMessage("Input the value of height and width of the desired image as an " +
+                    "integer (the value will be in pixels) \n" +
+                    "Tap on the GENERATE button to generate a random image of a bear \n" +
+                    "Tap the save button to save the generated image")
+                    .setTitle("HELP")
+                    .setPositiveButton("OK", (dialog, clk)->{})
+                    .create()
+                    .show();
+        }
+        return true;
+    }
 
-        if (!TextUtils.isEmpty(imagePath)) {
-            // Create a File object representing the image file
-            File imageFile = new File(imagePath);
-
-            // Check if the file exists and then delete it
-            if (imageFile.exists()) {
-                if (imageFile.delete()) {
-                    Toast.makeText(this, "Image deleted successfully!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Failed to delete image!", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(this, "Image file not found!", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "No image to delete!", Toast.LENGTH_SHORT).show();
+    class BearRowHolder extends RecyclerView.ViewHolder {
+        ImageView bearPic;
+        public BearRowHolder(@NonNull View bearView){
+            super(bearView);
+            bearPic = bearView.findViewById(R.id.bearImgView);
         }
     }
-}
-*/
 
-//    private void saveBearToSharedPreferences(Bitmap bearImg) {
-//        SharedPreferences preferences = getSharedPreferences("bearImg.png", Context.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = preferences.edit();
-//        Toast.makeText(this, "sharedpref started", Toast.LENGTH_SHORT).show();
-//        if(bearImg != null){
-//            ByteArrayOutputStream bearOutputStream = new ByteArrayOutputStream();
-//            bearImg.compress(Bitmap.CompressFormat.PNG, 100, bearOutputStream);
-//            byte[] byteArray = bearOutputStream.toByteArray();
-//            String base64Image = Base64.encodeToString(byteArray, Base64.DEFAULT);
-//            editor.putString("bearImg.png", base64Image);
-//            editor.apply();
-//            Toast.makeText(this, "sharedpref executed", Toast.LENGTH_SHORT).show();
-//        }
-//    }
 }

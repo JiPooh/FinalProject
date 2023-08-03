@@ -14,4 +14,5 @@ import algonquin.cst2335.finalproject.R;
 
 public class BearViewModel extends ViewModel {
     public MutableLiveData<ArrayList<Bitmap>> bearImages = new MutableLiveData<>();
+    public MutableLiveData<Bitmap> bearImage = new MutableLiveData<>();
 }
