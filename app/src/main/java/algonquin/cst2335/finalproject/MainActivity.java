@@ -16,7 +16,8 @@ import com.google.android.material.snackbar.Snackbar;
 import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
 
 public class MainActivity extends AppCompatActivity {
-private ActivityBearBinding bear;
+    private ActivityBearBinding bear;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,14 +25,14 @@ private ActivityBearBinding bear;
         Toast.makeText(this, "Welcome :)", Toast.LENGTH_SHORT).show();
         showAlertDialog();
 
-        findViewById(R.id.buttFlight).setOnClickListener(clk->{
+        findViewById(R.id.buttFlight).setOnClickListener(clk -> {
             Intent flightIntent = new Intent(MainActivity.this, flightTracker.class);
             startActivity(flightIntent);
             showSnackbar("Flight");
         });
-        findViewById(R.id.buttTriv).setOnClickListener(clk->{
-            Intent triviaIntent = new Intent(MainActivity.this , TriviaActivity.class);
-            startActivity(triviaIntent) ;
+        findViewById(R.id.buttTriv).setOnClickListener(clk -> {
+            Intent triviaIntent = new Intent(MainActivity.this, TriviaActivity.class);
+            startActivity(triviaIntent);
             showSnackbar("Trivia");
         });
         findViewById(R.id.buttCurr).setOnClickListener(clk -> {
@@ -46,15 +47,18 @@ private ActivityBearBinding bear;
             showSnackbar("Bear");
         });
     }
-        private void showSnackbar(String buttonName) {
-            String message = "You have clicked " + buttonName + ". Proceeding to the next page.";
-            View rootView = findViewById(android.R.id.content);
-            Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT).show();
-        }
-        private void showAlertDialog() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Hello")
-                    .setMessage("Please select an option")
-                    .setPositiveButton("OK", null)
-                    .show();
-        }
+
+    private void showSnackbar(String buttonName) {
+        String message = "You have clicked " + buttonName + ". Proceeding to the next page.";
+        View rootView = findViewById(android.R.id.content);
+        Snackbar.make(rootView, message, Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void showAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Hello")
+                .setMessage("Please select an option")
+                .setPositiveButton("OK", null)
+                .show();
+    }
+}

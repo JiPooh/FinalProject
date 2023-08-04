@@ -1,25 +1,18 @@
-package algonquin.cst2335.finalproject.bear;
+package algonquin.cst2335.finalproject;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Base64;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-import algonquin.cst2335.finalproject.R;
 
 public class Bear extends AppCompatActivity {
     private Bitmap bearImg = null;
