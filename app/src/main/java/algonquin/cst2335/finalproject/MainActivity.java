@@ -16,7 +16,6 @@ import com.google.android.material.snackbar.Snackbar;
 import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
 
 public class MainActivity extends AppCompatActivity {
-    private ActivityBearBinding bear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
