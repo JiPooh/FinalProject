@@ -21,8 +21,9 @@
             android:name=".TriviaActivity"
             android:exported="false" />
         <activity
-            android:name=".Bear"
-            android:exported="false" />
+            android:name=".bear.Bear"
+            android:exported="false"
+            android:configChanges=""/>
         <activity
             android:name=".CurrencyConverter"
             android:exported="false" />

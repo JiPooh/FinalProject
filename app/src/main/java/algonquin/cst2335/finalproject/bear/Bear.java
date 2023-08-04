@@ -1,13 +1,4 @@
-package algonquin.cst2335.finalproject;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+package algonquin.cst2335.finalproject.bear;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -18,9 +9,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -35,8 +34,8 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
+import algonquin.cst2335.finalproject.R;
 import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
 import algonquin.cst2335.finalproject.databinding.ActivityBearViewModelBinding;
 import algonquin.cst2335.finalproject.viewModel.BearViewModel;
@@ -49,6 +48,7 @@ public class Bear extends AppCompatActivity {
     private BearViewModel bearViewModel;
     private ArrayList<Bitmap> bearImages;
     private Bitmap pictureGen = null;
+    int position = 0;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -69,12 +69,13 @@ public class Bear extends AppCompatActivity {
         bearImages = bearViewModel.bearImages.getValue();
         sharedPreferences = getSharedPreferences("bearPref", MODE_PRIVATE);
         SharedPreferences.Editor bearEdit = sharedPreferences.edit();
-        AtomicInteger bearNum = new AtomicInteger(sharedPreferences.getInt("bearNum", 0));
+        position = sharedPreferences.getInt("bearNum", 0);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
 
         if(bearImages == null){
             bearViewModel.bearImages.postValue(bearImages = new ArrayList<Bitmap>());
         }
+        bearImages.clear();
 
         bearBinding.bearIMGRV.setLayoutManager(layoutManager);
         bearBinding.bearIMGRV.setAdapter(bearAdapter = new RecyclerView.Adapter<BearRowHolder>() {
@@ -95,6 +96,7 @@ public class Bear extends AppCompatActivity {
                 int targetWidth = (int) ((float) targetHeight * (float) imageWidth / (float) imageHeight);
                 holder.bearPic.getLayoutParams().width = targetWidth;
                 holder.bearPic.getLayoutParams().height = targetHeight;
+                holder.fileName = "bear" + position + ".PNG";
             }
 
             @Override
@@ -152,28 +154,26 @@ public class Bear extends AppCompatActivity {
             builder.setMessage("Do you wish to save this image?")
                     .setTitle("Question")
                     .setPositiveButton("Yes", (dialog, cl) -> {
-                        //sharedPref save to phone
-                        //saveBearToSharedPreferences(bearImg);
                         if(pictureGen != null) {
                             FileOutputStream bearOut = null;
                             try {
-                                bearOut = openFileOutput("bear" + bearNum.get() + ".PNG", Context.MODE_PRIVATE);
+                                bearOut = openFileOutput("bear" + position + ".PNG", Context.MODE_PRIVATE);
                                 pictureGen.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
                                 bearOut.flush();
                                 bearOut.close();
                                 bearImages.add(pictureGen);
-                                bearAdapter.notifyItemInserted(bearImages.size()-1); //problem here
+                                bearAdapter.notifyItemInserted(bearImages.size()-1);
 
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-
                             Snackbar.make(bearBinding.bearIMGRV, "You have saved this image, are you sure?", Snackbar.LENGTH_LONG)
                                     .setAction("UNDO", clck -> {
-                                        //remove from phone
-
+                                        deleteFile("bear" + position + ".PNG");
+                                        bearImages.remove(pictureGen);
+                                        bearAdapter.notifyItemRemoved(position);
                                     })
                                     .show();
                         }else{
@@ -185,14 +185,22 @@ public class Bear extends AppCompatActivity {
                     })
                     .create().show();
 
-            bearNum.getAndIncrement();
-            bearEdit.putInt("bearNum", bearNum.get());
+            position++;
+            bearEdit.putInt("bearNum", position);
             bearEdit.apply();
         });
         //display img on recycler view
         bearViewModel.bearImage.observe(this, a->{
             bearBinding.bearView.setImageBitmap(a);
         });
+//        bearBinding.bearIMGRV.observe(this, c->{
+//            BearImgFragment bearFrag = new BearImgFragment(position, bearViewModel, bearIMGRV);
+//            FragmentManager bFMan = getSupportFragmentManager()
+//            .beginTransaction()
+//            .replace(R.id., bearFrag)
+//            .addToBakStack("")
+//            .commit();
+//        })
 
     }
 
@@ -215,6 +223,7 @@ public class Bear extends AppCompatActivity {
 
     class BearRowHolder extends RecyclerView.ViewHolder {
         ImageView bearPic;
+        String fileName;
         public BearRowHolder(@NonNull View bearView){
             super(bearView);
             bearPic = bearView.findViewById(R.id.bearImgView);

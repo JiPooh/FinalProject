@@ -10,10 +10,7 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
-
-import com.google.android.material.snackbar.Snackbar;
-
-import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
+import algonquin.cst2335.finalproject.bear.Bear;
 
 public class MainActivity extends AppCompatActivity {
 

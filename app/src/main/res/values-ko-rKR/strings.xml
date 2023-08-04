@@ -7,4 +7,5 @@
     <string name="bear_height">사진의 높이</string>
     <string name="bear_width">사진의 넓이</string>
     <string name="bear_save">저장하기</string>
+    <string name="beardelete">삭제하기</string>
 </resources>

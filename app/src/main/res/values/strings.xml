@@ -12,5 +12,6 @@
     <string name="bear_height">Image Height</string>
     <string name="bear_width">Image Width</string>
     <string name="bear_save">SAVE</string>
+    <string name="beardelete">DELETE</string>
 
 </resources>
