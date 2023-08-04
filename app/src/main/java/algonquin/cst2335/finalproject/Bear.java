@@ -1,6 +1,7 @@
 package algonquin.cst2335.finalproject;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,8 +28,11 @@ import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,13 +50,14 @@ public class Bear extends AppCompatActivity {
     private ArrayList<Bitmap> bearImages;
     private Bitmap pictureGen = null;
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.bear_menu, menu);
         return true;
     }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +71,10 @@ public class Bear extends AppCompatActivity {
         SharedPreferences.Editor bearEdit = sharedPreferences.edit();
         AtomicInteger bearNum = new AtomicInteger(sharedPreferences.getInt("bearNum", 0));
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+
+        if(bearImages == null){
+            bearViewModel.bearImages.postValue(bearImages = new ArrayList<Bitmap>());
+        }
 
         bearBinding.bearIMGRV.setLayoutManager(layoutManager);
         bearBinding.bearIMGRV.setAdapter(bearAdapter = new RecyclerView.Adapter<BearRowHolder>() {
@@ -94,11 +104,27 @@ public class Bear extends AppCompatActivity {
         });
 
         setSupportActionBar(bearBinding.bearTool);
-
-
-        if(bearImages == null){
-            bearViewModel.bearImages.postValue(bearImages = new ArrayList<Bitmap>());
+        File[] savedImageFiles = getFilesDir().listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith("bear") && name.endsWith(".PNG");
+            }
+        });
+        if (savedImageFiles != null) {
+            for (File imageFile : savedImageFiles) {
+                try {
+                    FileInputStream fis = new FileInputStream(imageFile);
+                    Bitmap bitmap = BitmapFactory.decodeStream(fis);
+                    bearImages.add(bitmap);
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+
+
+
         bearBinding.bearGen.setOnClickListener(clk -> {
             try {
                 String bearWidth = bearBinding.bearWidth.getText().toString();
@@ -107,9 +133,9 @@ public class Bear extends AppCompatActivity {
                 ImageRequest bearImg = new ImageRequest(bearURL, new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap response) {
-                        bearBinding.bearView.setImageBitmap(response);
                         pictureGen = response;
-                        bearViewModel.bearImage.postValue(response);
+                        bearViewModel.bearImage.postValue(pictureGen);
+                        bearBinding.bearView.setImageBitmap(pictureGen);
                     }
                 }, 1024, 1024, ImageView.ScaleType.CENTER, null,
                         (error) -> {
@@ -165,7 +191,7 @@ public class Bear extends AppCompatActivity {
         });
         //display img on recycler view
         bearViewModel.bearImage.observe(this, a->{
-            bearBinding.//
+            bearBinding.bearView.setImageBitmap(a);
         });
 
     }
