@@ -18,11 +18,8 @@ public class BearImgFragment extends Fragment {
     Bitmap bearPic;
     String fileName;
     RecyclerView bearIMGRV;
-    BearImgFragment(int position, BearViewModel bearMod, RecyclerView bearIMGRV){
-        this.position = position;
-        this.bearMod = bearMod;
-        this.bearPic = bearMod.bearImages.getValue().get(position);
-        this.bearIMGRV = bearIMGRV;
+    BearImgFragment(Bitmap a){
+        bearPic = a;
     }
 
     @Override

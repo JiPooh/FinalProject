@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import algonquin.cst2335.finalproject.R;
+import algonquin.cst2335.finalproject.bear.BearImg;
 
 public class BearViewModel extends ViewModel {
-    public MutableLiveData<ArrayList<Bitmap>> bearImages = new MutableLiveData<>();
-    public MutableLiveData<Bitmap> bearImage = new MutableLiveData<>();
+    public MutableLiveData<ArrayList<BearImg>> bearImages = new MutableLiveData<>();
+    public MutableLiveData<BearImg> bearImage = new MutableLiveData<>();
 }

@@ -41,12 +41,11 @@ import algonquin.cst2335.finalproject.databinding.ActivityBearViewModelBinding;
 import algonquin.cst2335.finalproject.viewModel.BearViewModel;
 
 public class Bear extends AppCompatActivity {
-    private Bitmap bearImg = null;
     private RequestQueue bearQueue = null;
     private SharedPreferences sharedPreferences;
     private RecyclerView.Adapter bearAdapter;
     private BearViewModel bearViewModel;
-    private ArrayList<Bitmap> bearImages;
+    private ArrayList<BearImg> bearImages;
     private Bitmap pictureGen = null;
     int position = 0;
 
@@ -56,8 +55,6 @@ public class Bear extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.bear_menu, menu);
         return true;
     }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +70,7 @@ public class Bear extends AppCompatActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
 
         if(bearImages == null){
-            bearViewModel.bearImages.postValue(bearImages = new ArrayList<Bitmap>());
+            bearViewModel.bearImages.postValue(bearImages = new ArrayList<BearImg>());
         }
         bearImages.clear();
 
@@ -88,7 +85,8 @@ public class Bear extends AppCompatActivity {
 
             @Override
             public void onBindViewHolder(@NonNull BearRowHolder holder, int position) {
-                Bitmap obj = bearImages.get(position);
+                BearImg bearImgObj = bearImages.get(position);
+                Bitmap obj = bearImgObj.getPictureBear();
                 holder.bearPic.setImageBitmap(obj);
                 int imageWidth = obj.getWidth(); // Width of the bitmap
                 int imageHeight = obj.getHeight(); // Height of the bitmap
@@ -117,7 +115,8 @@ public class Bear extends AppCompatActivity {
                 try {
                     FileInputStream fis = new FileInputStream(imageFile);
                     Bitmap bitmap = BitmapFactory.decodeStream(fis);
-                    bearImages.add(bitmap);
+                    BearImg bearimg = new BearImg(bitmap);
+                    bearImages.add(bearimg);
                     fis.close();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -136,7 +135,8 @@ public class Bear extends AppCompatActivity {
                     @Override
                     public void onResponse(Bitmap response) {
                         pictureGen = response;
-                        bearViewModel.bearImage.postValue(pictureGen);
+                        BearImg bearImgObj = new BearImg(pictureGen);
+                        bearViewModel.bearImage.postValue(bearImgObj);
                         bearBinding.bearView.setImageBitmap(pictureGen);
                     }
                 }, 1024, 1024, ImageView.ScaleType.CENTER, null,
@@ -144,25 +144,29 @@ public class Bear extends AppCompatActivity {
                         });
                 bearQueue.add(bearImg);
                 Toast.makeText(this, "Bear has been generated!", Toast.LENGTH_SHORT).show();
-            }catch (NumberFormatException e){
-                Toast.makeText(this, "Please enter integer as values", Toast.LENGTH_SHORT).show();
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Please enter an integer as values", Toast.LENGTH_SHORT).show();
             }
             //save resolution used previously to shared pref
         });
+
         bearBinding.bearSave.setOnClickListener(clk -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(Bear.this);
             builder.setMessage("Do you wish to save this image?")
                     .setTitle("Question")
                     .setPositiveButton("Yes", (dialog, cl) -> {
-                        if(pictureGen != null) {
+                        if (pictureGen != null) {
                             FileOutputStream bearOut = null;
                             try {
+                                // Update the position to the correct size of bearImages
+                                position = bearImages.size();
                                 bearOut = openFileOutput("bear" + position + ".PNG", Context.MODE_PRIVATE);
                                 pictureGen.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
                                 bearOut.flush();
                                 bearOut.close();
-                                bearImages.add(pictureGen);
-                                bearAdapter.notifyItemInserted(bearImages.size()-1);
+                                BearImg bearimg = new BearImg(pictureGen);
+                                bearImages.add(bearimg);
+                                bearAdapter.notifyItemInserted(bearImages.size() - 1);
 
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
@@ -172,35 +176,28 @@ public class Bear extends AppCompatActivity {
                             Snackbar.make(bearBinding.bearIMGRV, "You have saved this image, are you sure?", Snackbar.LENGTH_LONG)
                                     .setAction("UNDO", clck -> {
                                         deleteFile("bear" + position + ".PNG");
-                                        bearImages.remove(pictureGen);
-                                        bearAdapter.notifyItemRemoved(position);
+                                        bearImages.remove(bearImages.size() - 1);
+                                        bearAdapter.notifyItemRemoved(bearImages.size());
                                     })
                                     .show();
-                        }else{
+                        } else {
                             Toast.makeText(this, "No image is generated", Toast.LENGTH_SHORT).show();
                         }
-
-            })
+                    })
                     .setNegativeButton("No", (dialog, cl) -> {
                     })
                     .create().show();
 
-            position++;
+            // Update the shared preferences after saving
             bearEdit.putInt("bearNum", position);
             bearEdit.apply();
         });
         //display img on recycler view
         bearViewModel.bearImage.observe(this, a->{
-            bearBinding.bearView.setImageBitmap(a);
+            bearBinding.bearView.setImageBitmap(a.getPictureBear());
+
         });
-//        bearBinding.bearIMGRV.observe(this, c->{
-//            BearImgFragment bearFrag = new BearImgFragment(position, bearViewModel, bearIMGRV);
-//            FragmentManager bFMan = getSupportFragmentManager()
-//            .beginTransaction()
-//            .replace(R.id., bearFrag)
-//            .addToBakStack("")
-//            .commit();
-//        })
+
 
     }
 
