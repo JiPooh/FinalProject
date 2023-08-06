@@ -1,0 +1,19 @@
+package algonquin.cst2335.finalproject.viewModel;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+
+import android.graphics.Bitmap;
+import android.os.Bundle;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import algonquin.cst2335.finalproject.R;
+import algonquin.cst2335.finalproject.bear.BearImg;
+
+public class BearViewModel extends ViewModel {
+    public MutableLiveData<ArrayList<BearImg>> bearImages = new MutableLiveData<>();
+    public MutableLiveData<BearImg> bearImage = new MutableLiveData<>();
+}

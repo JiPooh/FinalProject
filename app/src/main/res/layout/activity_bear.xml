@@ -1,24 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Bear">
+    tools:context=".bear.Bear"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/bearTool"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This is the Bear page, where user inputs desired width and height of the picture and a random bear pictures"
+        android:text="@string/bear_intro"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/bearTool" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/bearWidth"
-        android:layout_width="191dp"
-        android:layout_height="41dp"
+        android:layout_width="175dp"
+        android:layout_height="48dp"
         app:layout_constraintEnd_toEndOf="@+id/widthBear"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/widthBear"
@@ -28,17 +38,18 @@
         android:id="@+id/bearGen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Generate"
+        android:text="@string/bear_generate"
         app:layout_constraintBottom_toTopOf="@+id/bearSave"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.859"
-        app:layout_constraintStart_toEndOf="@+id/bearWidth" />
+        app:layout_constraintStart_toEndOf="@+id/bearWidth"
+        app:layout_constraintTop_toTopOf="@+id/bearWidth" />
 
     <TextView
         android:id="@+id/heightBear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="height"
+        android:text="@string/bear_height"
         app:layout_constraintEnd_toEndOf="@+id/bearWidth"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/bearWidth"
@@ -48,34 +59,57 @@
         android:id="@+id/widthBear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="width"
+        android:text="@string/bear_width"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bearIMGRV" />
+        app:layout_constraintTop_toBottomOf="@+id/bearView" />
 
     <Button
         android:id="@+id/bearSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="260dp"
-        android:text="save"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/bear_save"
+        app:layout_constraintBottom_toBottomOf="@+id/bearHeight"
         app:layout_constraintEnd_toEndOf="@+id/bearGen"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/bearGen" />
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/bearHeight"
-        android:layout_width="192dp"
-        android:layout_height="41dp"
+        android:layout_width="175dp"
+        android:layout_height="48dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/heightBear"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/heightBear"
-        app:layout_constraintTop_toBottomOf="@+id/heightBear" />
+        app:layout_constraintTop_toBottomOf="@+id/heightBear"
+        app:layout_constraintVertical_bias="0.0" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/bearIMGRV"
-        android:layout_width="409dp"
-        android:layout_height="312dp"
+        android:layout_width="408dp"
+        android:layout_height="304dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bearHeight" />
+
+    <ImageView
+        android:id="@+id/bearView"
+        android:layout_width="411dp"
+        android:layout_height="219dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:layout_editor_absoluteX="2dp" />
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/bearFGMT"
+        android:name="algonquin.cst2335.finalproject.bear.BearImgFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

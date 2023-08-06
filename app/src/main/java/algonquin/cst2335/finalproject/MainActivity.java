@@ -10,13 +10,9 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
-
-import com.google.android.material.snackbar.Snackbar;
-
-import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
+import algonquin.cst2335.finalproject.bear.Bear;
 
 public class MainActivity extends AppCompatActivity {
-    private ActivityBearBinding bear;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +26,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(flightIntent);
             showSnackbar("Flight");
         });
-        findViewById(R.id.buttTriv).setOnClickListener(clk -> {
-            Intent triviaIntent = new Intent(MainActivity.this, TriviaActivity.class);
-            startActivity(triviaIntent);
+        findViewById(R.id.buttTriv).setOnClickListener(clk->{
+            Intent triviaIntent = new Intent(MainActivity.this , TriviaActivity.class);
+            startActivity(triviaIntent) ;
             showSnackbar("Trivia");
         });
         findViewById(R.id.buttCurr).setOnClickListener(clk -> {
