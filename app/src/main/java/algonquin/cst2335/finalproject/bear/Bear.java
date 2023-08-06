@@ -15,10 +15,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.RequestQueue;
@@ -47,7 +49,9 @@ public class Bear extends AppCompatActivity {
     private BearViewModel bearViewModel;
     private ArrayList<BearImg> bearImages;
     private Bitmap pictureGen = null;
+    private BearImgFragment bearFragment;
     int position = 0;
+    int openFrag = 0;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -69,7 +73,7 @@ public class Bear extends AppCompatActivity {
         position = sharedPreferences.getInt("bearNum", 0);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
 
-        if(bearImages == null){
+        if (bearImages == null) {
             bearViewModel.bearImages.postValue(bearImages = new ArrayList<BearImg>());
         }
         bearImages.clear();
@@ -95,6 +99,7 @@ public class Bear extends AppCompatActivity {
                 holder.bearPic.getLayoutParams().width = targetWidth;
                 holder.bearPic.getLayoutParams().height = targetHeight;
                 holder.fileName = "bear" + position + ".PNG";
+
             }
 
             @Override
@@ -124,30 +129,38 @@ public class Bear extends AppCompatActivity {
             }
         }
 
-
+        position = bearImages.size();
 
         bearBinding.bearGen.setOnClickListener(clk -> {
             try {
-                String bearWidth = bearBinding.bearWidth.getText().toString();
-                String bearHeight = bearBinding.bearHeight.getText().toString();
-                String bearURL = "https://placebear.com/" + Integer.parseInt(bearWidth) + "/" + Integer.parseInt(bearHeight) + "";
-                ImageRequest bearImg = new ImageRequest(bearURL, new Response.Listener<Bitmap>() {
-                    @Override
-                    public void onResponse(Bitmap response) {
-                        pictureGen = response;
-                        BearImg bearImgObj = new BearImg(pictureGen);
-                        bearViewModel.bearImage.postValue(bearImgObj);
-                        bearBinding.bearView.setImageBitmap(pictureGen);
+                openFrag = 1;
+                int bearWidth = Integer.parseInt(bearBinding.bearWidth.getText().toString());
+                int bearHeight = Integer.parseInt(bearBinding.bearHeight.getText().toString());
+                if (bearHeight < 0 || bearWidth < 0) {
+                    Toast.makeText(this, "INVALID VALUE FOR HEIGHT/WIDTH, MUST BE A POSITIVE INTEGER", Toast.LENGTH_SHORT).show();
+                } else if (bearHeight > 7599 || bearWidth > 7599) {
+                    Toast.makeText(this, "INVALID VALUE FOR HEIGHT/WIDTH, MAXIMUM VALUE 7599", Toast.LENGTH_SHORT).show();
+                } else {
+                    String bearURL = "https://placebear.com/" + bearWidth + "/" + bearHeight;
+                    ImageRequest bearImg = new ImageRequest(bearURL, new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap response) {
+                            pictureGen = response;
+                            BearImg bearImgObj = new BearImg(pictureGen);
+                            bearViewModel.bearImage.postValue(bearImgObj);
+                            bearBinding.bearView.setImageBitmap(pictureGen);
+                            findViewById(R.id.bearFGMT).setVisibility(View.GONE);
+                        }
+                    }, 1024, 1024, ImageView.ScaleType.CENTER, null,
+                            (error) -> {
+                            });
+                    bearQueue.add(bearImg);
+                    Toast.makeText(this, "Bear has been generated!", Toast.LENGTH_SHORT).show();
                     }
-                }, 1024, 1024, ImageView.ScaleType.CENTER, null,
-                        (error) -> {
-                        });
-                bearQueue.add(bearImg);
-                Toast.makeText(this, "Bear has been generated!", Toast.LENGTH_SHORT).show();
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Please enter an integer as values", Toast.LENGTH_SHORT).show();
-            }
-            //save resolution used previously to shared pref
+                } catch(NumberFormatException e){
+                    Toast.makeText(this, "Please enter an integer as values", Toast.LENGTH_SHORT).show();
+                }
+
         });
 
         bearBinding.bearSave.setOnClickListener(clk -> {
@@ -158,9 +171,10 @@ public class Bear extends AppCompatActivity {
                         if (pictureGen != null) {
                             FileOutputStream bearOut = null;
                             try {
-                                // Update the position to the correct size of bearImages
-                                position = bearImages.size();
-                                bearOut = openFileOutput("bear" + position + ".PNG", Context.MODE_PRIVATE);
+                                // Save the image
+                                position = bearImages.size() + 1; // Increment the position to the current size
+                                String fileName = "bear" + position + ".PNG"; // Generate the file name
+                                bearOut = openFileOutput(fileName, Context.MODE_PRIVATE);
                                 pictureGen.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
                                 bearOut.flush();
                                 bearOut.close();
@@ -175,9 +189,16 @@ public class Bear extends AppCompatActivity {
                             }
                             Snackbar.make(bearBinding.bearIMGRV, "You have saved this image, are you sure?", Snackbar.LENGTH_LONG)
                                     .setAction("UNDO", clck -> {
-                                        deleteFile("bear" + position + ".PNG");
-                                        bearImages.remove(bearImages.size() - 1);
-                                        bearAdapter.notifyItemRemoved(bearImages.size());
+                                        int lastPosition = bearImages.size() - 1;
+                                        if (lastPosition >= 0) {
+                                            bearImages.remove(lastPosition);
+                                            bearAdapter.notifyItemRemoved(lastPosition);
+
+                                            // Delete the image file from storage
+                                            String fileName = "bear" + (position) + ".PNG";
+                                            File imageFile = new File(getFilesDir(), fileName);
+                                            imageFile.delete();
+                                        }
                                     })
                                     .show();
                         } else {
@@ -192,15 +213,36 @@ public class Bear extends AppCompatActivity {
             bearEdit.putInt("bearNum", position);
             bearEdit.apply();
         });
-        //display img on recycler view
-        bearViewModel.bearImage.observe(this, a->{
-            bearBinding.bearView.setImageBitmap(a.getPictureBear());
 
+        bearBinding.bearIMGRV.setLayoutManager(new GridLayoutManager(this, 3));
+        bearViewModel.bearImage.observe(this, a -> {
+            if (openFrag == 0) {
+                if (bearFragment == null || !bearFragment.isVisible()) {
+                    bearFragment = new BearImgFragment(a, this);
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.bearFGMT, bearFragment)
+                            .addToBackStack("")
+                            .commit();
+                    findViewById(R.id.bearFGMT).setVisibility(View.VISIBLE);
+                }
+            } else {
+                openFrag = 0;
+            }
         });
-
-
     }
-
+    @Override
+    public void onBackPressed() {
+        int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+        if (backStackEntryCount > 0) {
+            // If there are fragments in the back stack, pop the fragment and go back
+            getSupportFragmentManager().popBackStack();
+            findViewById(R.id.bearFGMT).setVisibility(View.GONE);
+        } else {
+            // If there are no fragments in the back stack, handle back navigation normally
+            super.onBackPressed();
+        }
+    }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         super.onOptionsItemSelected(item);
@@ -224,7 +266,27 @@ public class Bear extends AppCompatActivity {
         public BearRowHolder(@NonNull View bearView){
             super(bearView);
             bearPic = bearView.findViewById(R.id.bearImgView);
+            bearView.setOnClickListener(clk->{
+                position = getAbsoluteAdapterPosition();
+                BearImg bearimg = bearImages.get(position);
+                bearViewModel.bearImage.postValue(bearimg);
+                sharedPreferences = getSharedPreferences("bearPref", MODE_PRIVATE);
+                SharedPreferences.Editor bearEdit = sharedPreferences.edit();
+                bearEdit.putInt("selected", position);
+                bearEdit.apply();
+            });
         }
     }
+    public void setDelBearClickListener() {
+        if (bearFragment != null) {
+                int position = sharedPreferences.getInt("selected", -1);
+                bearImages.remove(position);
+                bearAdapter.notifyItemRemoved(position);
+                String fileName = "bear" + (position + 1) + ".PNG";
+                File imageFile = new File(getFilesDir(), fileName);
+                imageFile.delete();
 
+                Toast.makeText(this, "Image Deleted!", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
