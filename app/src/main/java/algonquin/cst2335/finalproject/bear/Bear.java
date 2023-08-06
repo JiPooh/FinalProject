@@ -42,9 +42,24 @@ import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
 import algonquin.cst2335.finalproject.databinding.ActivityBearViewModelBinding;
 import algonquin.cst2335.finalproject.viewModel.BearViewModel;
 
+/**
+ * class for bear activity where a random bear image is generated using user input for height and width value
+ * the user can then save the image generated if they want
+ * the user can also interact with already saved images by tapping on them
+ */
 public class Bear extends AppCompatActivity {
+    /**
+     * request for bear image from the url
+     */
     private RequestQueue bearQueue = null;
+    /**
+     * shared preference to store the bear number for image naming  when saving to storage
+     * and position of selected image from recycler view for fragment
+     */
     private SharedPreferences sharedPreferences;
+    /**
+     * recycler view to
+     */
     private RecyclerView.Adapter bearAdapter;
     private BearViewModel bearViewModel;
     private ArrayList<BearImg> bearImages;
@@ -171,9 +186,17 @@ public class Bear extends AppCompatActivity {
                         if (pictureGen != null) {
                             FileOutputStream bearOut = null;
                             try {
-                                // Save the image
-                                position = bearImages.size() + 1; // Increment the position to the current size
-                                String fileName = "bear" + position + ".PNG"; // Generate the file name
+                                position = sharedPreferences.getInt("bearNum", 0);
+                                int newPosition = 0;
+                                for (int x = 0; x < position; x++) {
+                                    String fileName = "bear" + x + ".PNG";
+                                    File imageFile = new File(getFilesDir(), fileName);
+                                    if (!imageFile.exists()) {
+                                        position = newPosition;
+                                        break;
+                                    }
+                                }
+                                String fileName = "bear" + position + ".PNG";
                                 bearOut = openFileOutput(fileName, Context.MODE_PRIVATE);
                                 pictureGen.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
                                 bearOut.flush();
@@ -181,6 +204,10 @@ public class Bear extends AppCompatActivity {
                                 BearImg bearimg = new BearImg(pictureGen);
                                 bearImages.add(bearimg);
                                 bearAdapter.notifyItemInserted(bearImages.size() - 1);
+                                // Update the shared preferences after saving
+                                position++;
+                                bearEdit.putInt("bearNum", position);
+                                bearEdit.apply();
 
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
@@ -209,9 +236,7 @@ public class Bear extends AppCompatActivity {
                     })
                     .create().show();
 
-            // Update the shared preferences after saving
-            bearEdit.putInt("bearNum", position);
-            bearEdit.apply();
+
         });
 
         bearBinding.bearIMGRV.setLayoutManager(new GridLayoutManager(this, 3));
@@ -279,10 +304,10 @@ public class Bear extends AppCompatActivity {
     }
     public void setDelBearClickListener() {
         if (bearFragment != null) {
-                int position = sharedPreferences.getInt("selected", -1);
-                bearImages.remove(position);
-                bearAdapter.notifyItemRemoved(position);
-                String fileName = "bear" + (position + 1) + ".PNG";
+                int selectedPos = sharedPreferences.getInt("selected", -1);
+                bearImages.remove(selectedPos);
+                bearAdapter.notifyItemRemoved(selectedPos);
+                String fileName = "bear" + (selectedPos + 1) + ".PNG";
                 File imageFile = new File(getFilesDir(), fileName);
                 imageFile.delete();
 
