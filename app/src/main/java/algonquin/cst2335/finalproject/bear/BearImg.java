@@ -4,9 +4,14 @@ import android.graphics.Bitmap;
 
 public class BearImg {
     protected Bitmap pictureBear;
+    protected int ID;
     BearImg(){}
-    BearImg(Bitmap m){
+    BearImg(int n, Bitmap m){
+        ID = n;
         pictureBear = m;
+    }
+    public int getID(){
+        return ID;
     }
     public Bitmap getPictureBear(){
         return pictureBear;

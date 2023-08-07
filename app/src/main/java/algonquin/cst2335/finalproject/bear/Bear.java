@@ -53,11 +53,6 @@ public class Bear extends AppCompatActivity {
      */
     private RequestQueue bearQueue = null;
     /**
-     * shared preference to store the bear number for image naming  when saving to storage
-     * and position of selected image from recycler view for fragment
-     */
-    private SharedPreferences sharedPreferences;
-    /**
      * recycler view to
      */
     private RecyclerView.Adapter bearAdapter;
@@ -67,7 +62,12 @@ public class Bear extends AppCompatActivity {
     private BearImgFragment bearFragment;
     int position = 0;
     int openFrag = 0;
-
+    /**
+     * shared preference to store the bear number for image naming  when saving to storage
+     * and position of selected image from recycler view for fragment
+     */
+    protected SharedPreferences sharedPreferences;
+    protected SharedPreferences.Editor bearEdit;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -81,15 +81,15 @@ public class Bear extends AppCompatActivity {
         bearQueue = Volley.newRequestQueue(this);
         ActivityBearBinding bearBinding = ActivityBearBinding.inflate(getLayoutInflater());
         setContentView(bearBinding.getRoot());
+        sharedPreferences = getSharedPreferences("bearPref", MODE_PRIVATE);
+        bearEdit = sharedPreferences.edit();
         bearViewModel = new ViewModelProvider(this).get(BearViewModel.class);
         bearImages = bearViewModel.bearImages.getValue();
-        sharedPreferences = getSharedPreferences("bearPref", MODE_PRIVATE);
-        SharedPreferences.Editor bearEdit = sharedPreferences.edit();
         position = sharedPreferences.getInt("bearNum", 0);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
 
         if (bearImages == null) {
-            bearViewModel.bearImages.postValue(bearImages = new ArrayList<BearImg>());
+            bearViewModel.bearImages.postValue(bearImages = new ArrayList<>());
         }
         bearImages.clear();
 
@@ -135,7 +135,12 @@ public class Bear extends AppCompatActivity {
                 try {
                     FileInputStream fis = new FileInputStream(imageFile);
                     Bitmap bitmap = BitmapFactory.decodeStream(fis);
-                    BearImg bearimg = new BearImg(bitmap);
+                    String fileName = imageFile.getName();
+                    int startPos = fileName.indexOf("bear") + "bear".length();
+                    int endPos = fileName.indexOf(".PNG");
+                    String positionStr = fileName.substring(startPos, endPos);
+                    int IDofFile = Integer.parseInt(positionStr);
+                    BearImg bearimg = new BearImg(IDofFile, bitmap);
                     bearImages.add(bearimg);
                     fis.close();
                 } catch (IOException e) {
@@ -144,7 +149,7 @@ public class Bear extends AppCompatActivity {
             }
         }
 
-        position = bearImages.size();
+        position = sharedPreferences.getInt("bearNum", 0);
 
         bearBinding.bearGen.setOnClickListener(clk -> {
             try {
@@ -161,8 +166,6 @@ public class Bear extends AppCompatActivity {
                         @Override
                         public void onResponse(Bitmap response) {
                             pictureGen = response;
-                            BearImg bearImgObj = new BearImg(pictureGen);
-                            bearViewModel.bearImage.postValue(bearImgObj);
                             bearBinding.bearView.setImageBitmap(pictureGen);
                             findViewById(R.id.bearFGMT).setVisibility(View.GONE);
                         }
@@ -186,25 +189,21 @@ public class Bear extends AppCompatActivity {
                         if (pictureGen != null) {
                             FileOutputStream bearOut = null;
                             try {
-                                position = sharedPreferences.getInt("bearNum", 0);
-                                int newPosition = 0;
+                                int newPic = 0;
                                 for (int x = 0; x < position; x++) {
-                                    String fileName = "bear" + x + ".PNG";
-                                    File imageFile = new File(getFilesDir(), fileName);
-                                    if (!imageFile.exists()) {
-                                        position = newPosition;
+                                    if (!doesFileExist(x)) {
+                                        newPic = x;
                                         break;
                                     }
                                 }
-                                String fileName = "bear" + position + ".PNG";
+                                String fileName = "bear" + newPic + ".PNG";
                                 bearOut = openFileOutput(fileName, Context.MODE_PRIVATE);
                                 pictureGen.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
                                 bearOut.flush();
                                 bearOut.close();
-                                BearImg bearimg = new BearImg(pictureGen);
+                                BearImg bearimg = new BearImg(newPic, pictureGen);
                                 bearImages.add(bearimg);
-                                bearAdapter.notifyItemInserted(bearImages.size() - 1);
-                                // Update the shared preferences after saving
+                                bearAdapter.notifyItemInserted(newPic);
                                 position++;
                                 bearEdit.putInt("bearNum", position);
                                 bearEdit.apply();
@@ -214,17 +213,18 @@ public class Bear extends AppCompatActivity {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            Snackbar.make(bearBinding.bearIMGRV, "You have saved this image, are you sure?", Snackbar.LENGTH_LONG)
+                            Snackbar.make(bearBinding.bearIMGRV, "You have saved this image!", Snackbar.LENGTH_LONG)
                                     .setAction("UNDO", clck -> {
-                                        int lastPosition = bearImages.size() - 1;
+                                        int lastPosition = position - 1;
                                         if (lastPosition >= 0) {
-                                            bearImages.remove(lastPosition);
-                                            bearAdapter.notifyItemRemoved(lastPosition);
-
+                                            BearImg forDel = bearImages.get(lastPosition);
+                                            int IDforDel = forDel.getID();
                                             // Delete the image file from storage
-                                            String fileName = "bear" + (position) + ".PNG";
+                                            String fileName = "bear" + (IDforDel) + ".PNG";
                                             File imageFile = new File(getFilesDir(), fileName);
                                             imageFile.delete();
+                                            bearImages.remove(lastPosition);
+                                            bearAdapter.notifyItemRemoved(lastPosition);
                                         }
                                     })
                                     .show();
@@ -235,8 +235,6 @@ public class Bear extends AppCompatActivity {
                     .setNegativeButton("No", (dialog, cl) -> {
                     })
                     .create().show();
-
-
         });
 
         bearBinding.bearIMGRV.setLayoutManager(new GridLayoutManager(this, 3));
@@ -303,15 +301,28 @@ public class Bear extends AppCompatActivity {
         }
     }
     public void setDelBearClickListener() {
-        if (bearFragment != null) {
-                int selectedPos = sharedPreferences.getInt("selected", -1);
-                bearImages.remove(selectedPos);
-                bearAdapter.notifyItemRemoved(selectedPos);
-                String fileName = "bear" + (selectedPos + 1) + ".PNG";
-                File imageFile = new File(getFilesDir(), fileName);
-                imageFile.delete();
+        AlertDialog.Builder builder = new AlertDialog.Builder(Bear.this);
+        builder.setMessage("Do you wish to delete this image?")
+                .setTitle("Question")
+                .setPositiveButton("Yes", (dialog, cl) -> {
+                        int selectedPos = sharedPreferences.getInt("selected", -1);
+                        BearImg forDel = bearImages.get(selectedPos);
+                        int IDforDel = forDel.getID();
+                        String fileName = "bear" + (IDforDel) + ".PNG";
+                        File imageFile = new File(getFilesDir(), fileName);
+                        imageFile.delete();
+                        bearImages.remove(selectedPos);
+                        bearAdapter.notifyItemRemoved(selectedPos);
 
-                Toast.makeText(this, "Image Deleted!", Toast.LENGTH_SHORT).show();
-        }
+                        Toast.makeText(this, "Image Deleted!", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("No", (dialog, cl) -> {
+                })
+                .create().show();
+    }
+    private boolean doesFileExist(int ID) {
+        String fileName = "bear" + ID + ".PNG";
+        File imageFile = new File(getFilesDir(), fileName);
+        return imageFile.exists();
     }
 }
