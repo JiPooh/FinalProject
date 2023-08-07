@@ -28,16 +28,44 @@ import algonquin.cst2335.finalproject.R;
 import algonquin.cst2335.finalproject.databinding.BearimagedetailBinding;
 import algonquin.cst2335.finalproject.viewModel.BearViewModel;
 
+/**
+ * class for fragment, which will hold bigger sized selected image and a delete button to
+ * delete the selected image
+ */
 public class BearImgFragment extends Fragment {
+    /**
+     * BearImg that is selected
+     */
     private BearImg bearimg;
+    /**
+     * Bear activity to use some functions from
+     */
     private Bear bear;
+    /**
+     * SharedPreference to retrieve selected BearImg object's ID and position from array
+     */
     private SharedPreferences sharedPref;
+
+    /**
+     * empty constructor of fragment class
+     */
     public BearImgFragment(){}
+
+    /**
+     * constructor of fragment class
+     * @param m BearImg object that is selected
+     * @param bear Bear activity where the Bear program runs
+     */
     public BearImgFragment(BearImg m, Bear bear) {
         bearimg = m;
         this.bear = bear;
     }
+
+    /**
+     * delete button in the fragment
+     */
     Button delBear;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         BearimagedetailBinding bearFrag = BearimagedetailBinding.inflate(inflater);
@@ -47,7 +75,7 @@ public class BearImgFragment extends Fragment {
             bearFrag.picBear.setImageBitmap(bearimg.getPictureBear());
             bearFrag.picBear.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
-                public void onGlobalLayout() {
+                public void onGlobalLayout() { //used to fit the image to the device screen width
                     //get screen size
                     DisplayMetrics displayMetrics = new DisplayMetrics();
                     getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -75,7 +103,9 @@ public class BearImgFragment extends Fragment {
             });
 
     }
-
+        /**
+         * onClickListener for the delete button. function is in Bear class
+         */
         bearFrag.delBear.setOnClickListener(clk->{
             bear.setDelBearClickListener();
         });

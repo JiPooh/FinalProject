@@ -53,22 +53,47 @@ public class Bear extends AppCompatActivity {
      */
     private RequestQueue bearQueue = null;
     /**
-     * recycler view to
+     * recycler view to display all the saved images
      */
     private RecyclerView.Adapter bearAdapter;
+    /**
+     * class that holds all the MutableLiveData of BearImg
+     */
     private BearViewModel bearViewModel;
+    /**
+     * Array of BearImg objects
+     */
     private ArrayList<BearImg> bearImages;
+    /**
+     * generated image of bear
+     */
     private Bitmap pictureGen = null;
+    /**
+     * fragment to be used for user interaction with saved image files
+     */
     private BearImgFragment bearFragment;
+    /**
+     * BearImg object that is made with the generate button
+     */
     private BearImg newMadeBear = null;
+    /**
+     * position of BearImg object in the Array bearImages
+     */
     int position = 0;
+    /**
+     * variable to check if the fragment is open
+     */
     int openFrag = 0;
     /**
      * shared preference to store the bear number for image naming  when saving to storage
      * and position of selected image from recycler view for fragment
      */
     protected SharedPreferences sharedPreferences;
+    /**
+     * editor of SharedPreference to update its values
+     */
     protected SharedPreferences.Editor bearEdit;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -79,22 +104,29 @@ public class Bear extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        bearQueue = Volley.newRequestQueue(this);
+        bearQueue = Volley.newRequestQueue(this); // Volley for retrieving data from url
         ActivityBearBinding bearBinding = ActivityBearBinding.inflate(getLayoutInflater());
         setContentView(bearBinding.getRoot());
+        //initiate SharedPreference and its editor
         sharedPreferences = getSharedPreferences("bearPref", MODE_PRIVATE);
         bearEdit = sharedPreferences.edit();
+        //initiate ViewModel and its MutableLiveData
         bearViewModel = new ViewModelProvider(this).get(BearViewModel.class);
         bearImages = bearViewModel.bearImages.getValue();
+        //retrieve bearNum from SharedPreference
         position = sharedPreferences.getInt("bearNum", 0);
+        //Layout for Recyclerview to be grid to fit multiple images per line
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
-
+        //checks if Array of BearImg is null, creates new if null
         if (bearImages == null) {
             bearViewModel.bearImages.postValue(bearImages = new ArrayList<>());
         }
-        bearImages.clear();
-
+        bearImages.clear(); //prevents the duplication of recycler view objects on rotation
+        //initiates recycler view
         bearBinding.bearIMGRV.setLayoutManager(layoutManager);
+        /**
+         * initiates recycler view to display all the images in the BearImages
+         */
         bearBinding.bearIMGRV.setAdapter(bearAdapter = new RecyclerView.Adapter<BearRowHolder>() {
             @NonNull
             @Override
@@ -123,16 +155,24 @@ public class Bear extends AppCompatActivity {
                 return bearImages.size();
             }
         });
-
+        //initiates toolbar
         setSupportActionBar(bearBinding.bearTool);
+        //initiates File for access to device storage to retrieve saved images
         File[] savedImageFiles = getFilesDir().listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 return name.startsWith("bear") && name.endsWith(".PNG");
             }
         });
+        //checks if there is any saved images in the device storage
         if (savedImageFiles != null) {
+            //a for loop to retrieve information of all saved images from storage
             for (File imageFile : savedImageFiles) {
+                /**
+                 * a try block to extract information of each saved image files and save them in the
+                 * BearImages Array
+                 * ID from name of file and bitmap from image
+                 */
                 try {
                     FileInputStream fis = new FileInputStream(imageFile);
                     Bitmap bitmap = BitmapFactory.decodeStream(fis);
@@ -149,17 +189,22 @@ public class Bear extends AppCompatActivity {
                 }
             }
         }
-
+        //sets bearNum as position for ID of BearImg
         position = sharedPreferences.getInt("bearNum", 0);
-
+        /**
+         * onClickListener for Button for generating new BearImg
+         */
         bearBinding.bearGen.setOnClickListener(clk -> {
+            /**
+             * try block to request bitmap data from url created with user input
+             */
             try {
                 openFrag = 1;
                 int bearWidth = Integer.parseInt(bearBinding.bearWidth.getText().toString());
                 int bearHeight = Integer.parseInt(bearBinding.bearHeight.getText().toString());
                 if (bearHeight < 0 || bearWidth < 0) {
                     Toast.makeText(this, "INVALID VALUE FOR HEIGHT/WIDTH, MUST BE A POSITIVE INTEGER", Toast.LENGTH_SHORT).show();
-                } else if (bearHeight > 7599 || bearWidth > 7599) {
+                } else if (bearHeight > 7599 || bearWidth > 7599) { //maximum value
                     Toast.makeText(this, "INVALID VALUE FOR HEIGHT/WIDTH, MAXIMUM VALUE 7599", Toast.LENGTH_SHORT).show();
                 } else {
                     String bearURL = "https://placebear.com/" + bearWidth + "/" + bearHeight;
@@ -183,8 +228,13 @@ public class Bear extends AppCompatActivity {
                 }
 
         });
-
+        /**
+         * onClickListener for button for saving generated bitmap data
+         */
         bearBinding.bearSave.setOnClickListener(clk -> {
+            /**
+             * alert to check with user if they are certain of saving image
+             */
             AlertDialog.Builder builder = new AlertDialog.Builder(Bear.this);
             builder.setMessage("Do you wish to save this image?")
                     .setTitle("Question")
@@ -202,6 +252,9 @@ public class Bear extends AppCompatActivity {
                                     bearOut.close();
                                     bearImages.add(newMadeBear);
                                     bearAdapter.notifyItemInserted(ID);
+                                    /**
+                                     * snackbar to undo the save in case user changes mind
+                                     */
                                     Snackbar.make(bearBinding.bearIMGRV, "You have saved this image!", Snackbar.LENGTH_LONG)
                                             .setAction("UNDO", clck -> {
                                                     File imageFile = new File(getFilesDir(), fileName);
@@ -230,8 +283,12 @@ public class Bear extends AppCompatActivity {
             bearEdit.putInt("bearNum", position);
             bearEdit.apply();
         });
-
+        //initiate observer for MutableLiveData in BearViewModel class
         bearBinding.bearIMGRV.setLayoutManager(new GridLayoutManager(this, 3));
+        /**
+         * observer which watches for changes in MutableLiveData in BearViewModel
+         * and creates fragment for the recyclerview for user interaction
+         */
         bearViewModel.bearImage.observe(this, a -> {
             if (openFrag == 0) {
                 if (bearFragment == null || !bearFragment.isVisible()) {
@@ -277,6 +334,9 @@ public class Bear extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * ViewHolder for the recycler view to display the image of saved files
+     */
     class BearRowHolder extends RecyclerView.ViewHolder {
         ImageView bearPic;
         String fileName;
@@ -294,6 +354,11 @@ public class Bear extends AppCompatActivity {
             });
         }
     }
+
+    /**
+     * onClickListener for the delete button in the BearImgFragment to delete the selected image file
+     * from storage
+     */
     public void setDelBearClickListener() {
         AlertDialog.Builder builder = new AlertDialog.Builder(Bear.this);
         builder.setMessage("Do you wish to delete this image?")
