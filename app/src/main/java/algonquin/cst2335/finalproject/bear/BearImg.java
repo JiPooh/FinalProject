@@ -19,4 +19,5 @@ public class BearImg {
     public void setPictureBear(Bitmap pictureBear){
         this.pictureBear = pictureBear;
     }
+    public void setID(int n){this.ID = n;}
 }

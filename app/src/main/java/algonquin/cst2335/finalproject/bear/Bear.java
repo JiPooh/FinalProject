@@ -60,6 +60,7 @@ public class Bear extends AppCompatActivity {
     private ArrayList<BearImg> bearImages;
     private Bitmap pictureGen = null;
     private BearImgFragment bearFragment;
+    private BearImg newMadeBear = null;
     int position = 0;
     int openFrag = 0;
     /**
@@ -166,6 +167,8 @@ public class Bear extends AppCompatActivity {
                         @Override
                         public void onResponse(Bitmap response) {
                             pictureGen = response;
+                            newMadeBear = new BearImg(position, pictureGen);
+                            bearViewModel.bearImage.postValue(newMadeBear);
                             bearBinding.bearView.setImageBitmap(pictureGen);
                             findViewById(R.id.bearFGMT).setVisibility(View.GONE);
                         }
@@ -186,48 +189,36 @@ public class Bear extends AppCompatActivity {
             builder.setMessage("Do you wish to save this image?")
                     .setTitle("Question")
                     .setPositiveButton("Yes", (dialog, cl) -> {
-                        if (pictureGen != null) {
+                        if (newMadeBear != null) {
                             FileOutputStream bearOut = null;
                             try {
-                                int newPic = 0;
-                                for (int x = 0; x < position; x++) {
-                                    if (!doesFileExist(x)) {
-                                        newPic = x;
-                                        break;
-                                    }
+                                if(pictureGen != null) {
+                                    position = sharedPreferences.getInt("bearNum", 0);
+                                    int ID = position;
+                                    String fileName = "bear" + ID + ".PNG";
+                                    bearOut = openFileOutput(fileName, Context.MODE_PRIVATE);
+                                    pictureGen.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
+                                    bearOut.flush();
+                                    bearOut.close();
+                                    bearImages.add(newMadeBear);
+                                    bearAdapter.notifyItemInserted(ID);
+                                    Snackbar.make(bearBinding.bearIMGRV, "You have saved this image!", Snackbar.LENGTH_LONG)
+                                            .setAction("UNDO", clck -> {
+                                                    File imageFile = new File(getFilesDir(), fileName);
+                                                    imageFile.delete();
+                                                    bearImages.remove(newMadeBear);
+                                                    bearAdapter.notifyItemRemoved(ID);
+                                            })
+                                            .show();
+                                }else{
+                                    Toast.makeText(this, "You have already saved this image!", Toast.LENGTH_SHORT).show();
                                 }
-                                String fileName = "bear" + newPic + ".PNG";
-                                bearOut = openFileOutput(fileName, Context.MODE_PRIVATE);
-                                pictureGen.compress(Bitmap.CompressFormat.PNG, 100, bearOut);
-                                bearOut.flush();
-                                bearOut.close();
-                                BearImg bearimg = new BearImg(newPic, pictureGen);
-                                bearImages.add(bearimg);
-                                bearAdapter.notifyItemInserted(newPic);
-                                position++;
-                                bearEdit.putInt("bearNum", position);
-                                bearEdit.apply();
-
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            Snackbar.make(bearBinding.bearIMGRV, "You have saved this image!", Snackbar.LENGTH_LONG)
-                                    .setAction("UNDO", clck -> {
-                                        int lastPosition = position - 1;
-                                        if (lastPosition >= 0) {
-                                            BearImg forDel = bearImages.get(lastPosition);
-                                            int IDforDel = forDel.getID();
-                                            // Delete the image file from storage
-                                            String fileName = "bear" + (IDforDel) + ".PNG";
-                                            File imageFile = new File(getFilesDir(), fileName);
-                                            imageFile.delete();
-                                            bearImages.remove(lastPosition);
-                                            bearAdapter.notifyItemRemoved(lastPosition);
-                                        }
-                                    })
-                                    .show();
+
                         } else {
                             Toast.makeText(this, "No image is generated", Toast.LENGTH_SHORT).show();
                         }
@@ -235,6 +226,9 @@ public class Bear extends AppCompatActivity {
                     .setNegativeButton("No", (dialog, cl) -> {
                     })
                     .create().show();
+            position++;
+            bearEdit.putInt("bearNum", position);
+            bearEdit.apply();
         });
 
         bearBinding.bearIMGRV.setLayoutManager(new GridLayoutManager(this, 3));
@@ -313,16 +307,14 @@ public class Bear extends AppCompatActivity {
                         imageFile.delete();
                         bearImages.remove(selectedPos);
                         bearAdapter.notifyItemRemoved(selectedPos);
+                        position = bearImages.size() + 1;
+                        bearEdit.putInt("bearNum", position);
+                        bearEdit.apply();
 
                         Toast.makeText(this, "Image Deleted!", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("No", (dialog, cl) -> {
                 })
                 .create().show();
-    }
-    private boolean doesFileExist(int ID) {
-        String fileName = "bear" + ID + ".PNG";
-        File imageFile = new File(getFilesDir(), fileName);
-        return imageFile.exists();
     }
 }
