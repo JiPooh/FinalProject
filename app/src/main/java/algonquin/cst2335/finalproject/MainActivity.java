@@ -10,14 +10,14 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
-
 import com.google.android.material.snackbar.Snackbar;
 
 import algonquin.cst2335.finalproject.bear.Bear;
 import algonquin.cst2335.finalproject.databinding.ActivityBearBinding;
+import algonquin.cst2335.finalproject.bear.Bear;
 
 public class MainActivity extends AppCompatActivity {
-private ActivityBearBinding bear;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,4 +61,7 @@ private ActivityBearBinding bear;
                 .setPositiveButton("OK", null)
                 .show();
     }
+
 }
+
+
