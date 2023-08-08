@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Projet Final</string>
+    <string name="play_button">Jouer</string>
+    <string name="question_hint">" Saision le nombre de question "</string>
+    <string name="name_hint">"enter votre nom "</string>
+    <string name="name_text">"enter votre nom "</string>
+    <string name="back_button">Retour</string>
+    <string name="answer_text">"Saisier votre repomse "</string>
+    <string name="answer_hint">Entrer votre reponse</string>
+    <string name="question_text">Choisier de 1 a 50 question</string>
+</resources>

@@ -9,78 +9,99 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/triviaList"
-        android:layout_width="422dp"
-        android:layout_height="0dp"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="16dp" />
+        android:layout_width="406dp"
+        android:layout_height="290dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/backButton"
-        android:layout_width="183dp"
-        android:layout_height="40dp"
-        android:text="GoBack"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="675dp" />
+        android:layout_width="133dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="30dp"
+        android:text="play again"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/testButton"
+        app:layout_constraintTop_toBottomOf="@+id/categorySpinner" />
 
     <Button
         android:id="@+id/randomButton"
-        android:layout_width="338dp"
-        android:layout_height="43dp"
-        android:text="RandomPlay"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="525dp" />
+        android:layout_width="133dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="30dp"
+        android:text="@string/play_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/backButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/categorySpinner" />
 
     <TextView
         android:id="@+id/nameView"
         android:layout_width="143dp"
         android:layout_height="22dp"
-        android:text="Enter your name "
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="386dp" />
-
-    <EditText
-        android:id="@+id/answerText"
-        android:layout_width="159dp"
-        android:layout_height="37dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Name"
-        tools:layout_editor_absoluteX="46dp"
-        tools:layout_editor_absoluteY="281dp" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="119dp"
-        android:layout_height="35dp"
-        android:text="choose from 1-50 question"
-        tools:layout_editor_absoluteX="476dp"
-        tools:layout_editor_absoluteY="179dp" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/name_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/triviaList" />
 
     <EditText
         android:id="@+id/questionText"
-        android:layout_width="125dp"
-        android:layout_height="28dp"
+        android:layout_width="270dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="20dp"
         android:ems="10"
+        android:hint="@string/question_hint"
         android:inputType="number"
-        tools:layout_editor_absoluteX="476dp"
-        tools:layout_editor_absoluteY="235dp" />
+        app:layout_constraintStart_toStartOf="@+id/questionView"
+        app:layout_constraintTop_toBottomOf="@+id/questionView" />
 
     <Button
         android:id="@+id/testButton"
-        android:layout_width="162dp"
-        android:layout_height="46dp"
-        android:text="top Scores "
-        tools:layout_editor_absoluteX="27dp"
-        tools:layout_editor_absoluteY="604dp" />
+        android:layout_width="133dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="30dp"
+        android:text="exit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/categorySpinner" />
 
     <EditText
-        android:id="@+id/categoryText"
+        android:id="@+id/nameText"
         android:layout_width="184dp"
         android:layout_height="44dp"
+        android:layout_marginTop="20dp"
         android:ems="10"
+        android:hint="@string/name_hint"
         android:inputType="text"
-        android:text="Choose category"
-        tools:layout_editor_absoluteX="476dp"
-        tools:layout_editor_absoluteY="288dp" />
+        app:layout_constraintStart_toStartOf="@+id/nameView"
+        app:layout_constraintTop_toBottomOf="@+id/nameView" />
+
+    <TextView
+        android:id="@+id/questionView"
+        android:layout_width="208dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/question_text"
+        app:layout_constraintStart_toStartOf="@+id/nameText"
+        app:layout_constraintTop_toBottomOf="@+id/nameText" />
+
+    <Spinner
+        android:id="@+id/categorySpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="@+id/questionText"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/questionText"
+        app:layout_constraintTop_toBottomOf="@+id/questionText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
