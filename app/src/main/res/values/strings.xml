@@ -8,4 +8,14 @@
     <string name="helpTitle">How to use the Currency Converter</string>
     <string name="result_message">The resulting currency is: $</string>
 
+    <string name="main_edit_message">Input Airport Code</string>
+    <string name="button1_message">Submit</string>
+    <string name="bear_helpT">HELP</string>
+    <string name="bear_intro">Welcome to bear image generator!</string>
+    <string name="bear_generate">GENERATE</string>
+    <string name="bear_height">Image Height</string>
+    <string name="bear_width">Image Width</string>
+    <string name="bear_save">SAVE</string>
+    <string name="beardelete">DELETE</string>
+
 </resources>

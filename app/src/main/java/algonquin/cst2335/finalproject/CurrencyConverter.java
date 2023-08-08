@@ -50,9 +50,12 @@ import algonquin.cst2335.finalproject.databinding.CurrencyLayoutBinding;
  * @version 1.0
  */
 public class CurrencyConverter extends AppCompatActivity {
+
     RequestQueue queue = null;
     private Button submitButton;
     RecyclerView.Adapter convAdapter;
+    private Button currencySubmitButton;
+
     private ActivityCurrencyConverterBinding binding;
     private static final String PREF_NAME = "MyConversionPreferences";
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
@@ -210,58 +213,63 @@ public class CurrencyConverter extends AppCompatActivity {
 
         submitButton.setOnClickListener(clk -> {
 
-            String base = editTextBaseCurrency.getText().toString();
-            String end = editTextEndCurrency.getText().toString();
-            String amt = editTextAmount.getText().toString();
+                    String base = editTextBaseCurrency.getText().toString();
+                    String end = editTextEndCurrency.getText().toString();
+                    String amt = editTextAmount.getText().toString();
 
-            String stringURL = "https://api.getgeoapi.com/v2/currency/convert?format=json&from="
-                        + URLEncoder.encode(base)
-                        + "&to="
-                        + URLEncoder.encode(end)
-                        + "&amount="
-                        + URLEncoder.encode(amt)
-                        + "&api_key=0372d94f591a92da01254d9f6f4b013fa24b313a&format=json";
+                    String stringURL = "https://api.getgeoapi.com/v2/currency/convert?format=json&from="
+                            + URLEncoder.encode(base)
+                            + "&to="
+                            + URLEncoder.encode(end)
+                            + "&amount="
+                            + URLEncoder.encode(amt)
+                            + "&api_key=0372d94f591a92da01254d9f6f4b013fa24b313a&format=json";
 
-                JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,stringURL,null,
-                        (response) -> {
-                            try {
-                                JSONObject ratesObject = response.getJSONObject("rates");
-                                String currencyCode = ratesObject.keys().next();
-                                JSONObject currencyData = ratesObject.getJSONObject(currencyCode);
-                                String rateForAmount = currencyData.getString("rate_for_amount");
+                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, stringURL, null,
+                            (response) -> {
+                                try {
+                                    JSONObject ratesObject = response.getJSONObject("rates");
+                                    String currencyCode = ratesObject.keys().next();
+                                    JSONObject currencyData = ratesObject.getJSONObject(currencyCode);
+                                    String rateForAmount = currencyData.getString("rate_for_amount");
 
-                                String currencyName = currencyData.getString("currency_name");
-                                String rate = currencyData.getString("rate");
+                                    String currencyName = currencyData.getString("currency_name");
+                                    String rate = currencyData.getString("rate");
 
-                                String status = response.getString("status");
+                                    String status = response.getString("status");
 
-                                SingleConversion newConversion = new SingleConversion(base, end, amt, rateForAmount, currencyName, rate, status);
+                                    SingleConversion newConversion = new SingleConversion(base, end, amt, rateForAmount, currencyName, rate, status);
 
-                                Executor thread1 = Executors.newSingleThreadExecutor();
-                                thread1.execute(() -> {
-                                    newConversion.id = convDAO.insertConversion(newConversion);
+                                    Executor thread1 = Executors.newSingleThreadExecutor();
+                                    thread1.execute(() -> {
+                                        newConversion.id = convDAO.insertConversion(newConversion);
 
-                                });
-                                runOnUiThread(() -> {
-                                    conversions.add(newConversion);
-                                    convAdapter.notifyItemInserted(conversions.size() - 1);
+                                    });
+                                    runOnUiThread(() -> {
+                                        conversions.add(newConversion);
+                                        convAdapter.notifyItemInserted(conversions.size() - 1);
 
-                                });
-                            } catch (JSONException e) {
-                                Log.e("CurrencyConverter", "JSON Parsing Error: " + e.getMessage());
-                                throw new RuntimeException(e);
-                            }
-                        }, (error -> {
-                    Log.e("CurrencyConverter", "Volley Error: " + error.getMessage());
-                } ));
-queue.add(request);
+                                    });
+                                } catch (JSONException e) {
+                                    Log.e("CurrencyConverter", "JSON Parsing Error: " + e.getMessage());
+                                    throw new RuntimeException(e);
+                                }
+                            }, (error -> {
+                        Log.e("CurrencyConverter", "Volley Error: " + error.getMessage());
+                    }));
+                    queue.add(request);
 
-        });
-        try {
-           binding.currencyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        } catch (Exception e) {
-            Log.e("CurrencyConverter", "Error setting RecyclerView LayoutManager: " + e.getMessage());
-        }
+
+                    currencySubmitButton = findViewById(R.id.currency_submitButton);
+
+
+
+                    try {
+                        binding.currencyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                    } catch (Exception e) {
+                        Log.e("CurrencyConverter", "Error setting RecyclerView LayoutManager: " + e.getMessage());
+                    }
+                });
     }
 
     /**
@@ -301,4 +309,5 @@ queue.add(request);
         editor.putString(KEY_AMOUNT, amountCurrency);
         editor.apply();
     }
+
 }
