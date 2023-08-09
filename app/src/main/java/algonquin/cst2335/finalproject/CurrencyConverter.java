@@ -24,11 +24,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,7 +54,6 @@ import algonquin.cst2335.finalproject.databinding.CurrencyLayoutBinding;
 public class CurrencyConverter extends AppCompatActivity {
 
     RequestQueue queue = null;
-    private Button submitButton;
     RecyclerView.Adapter convAdapter;
     private Button currencySubmitButton;
 
@@ -90,7 +91,7 @@ public class CurrencyConverter extends AppCompatActivity {
         @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.my_menu, menu);
+        getMenuInflater().inflate(R.menu.currency_menu, menu);
         return true;
     }
 
@@ -129,7 +130,7 @@ public class CurrencyConverter extends AppCompatActivity {
         binding = ActivityCurrencyConverterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-
+setSupportActionBar(binding.myToolbar);
         convDB = Room.databaseBuilder(getApplicationContext(), ConversionDatabase.class, "currency-converter-database")
                 .addMigrations(MIGRATION_1_2)
                 .build();
@@ -166,8 +167,7 @@ public class CurrencyConverter extends AppCompatActivity {
         binding.baseCurrencyEditText.setText(sharedPreferences.getString(KEY_BASE_CURRENCY, ""));
         binding.endCurrencyEditText.setText(sharedPreferences.getString(KEY_END_CURRENCY,""));
         binding.amountEditText.setText(sharedPreferences.getString(KEY_AMOUNT,""));
-        submitButton = binding.currencySubmitButton;
-
+        currencySubmitButton = findViewById(R.id.currency_submitButton);
 
         editTextBaseCurrency = binding.baseCurrencyEditText;
         editTextEndCurrency = binding.endCurrencyEditText;
@@ -211,7 +211,8 @@ public class CurrencyConverter extends AppCompatActivity {
             }
         });
 
-        submitButton.setOnClickListener(clk -> {
+
+        binding.currencySubmitButton.setOnClickListener(clk -> {
 
                     String base = editTextBaseCurrency.getText().toString();
                     String end = editTextEndCurrency.getText().toString();
@@ -258,9 +259,9 @@ public class CurrencyConverter extends AppCompatActivity {
                         Log.e("CurrencyConverter", "Volley Error: " + error.getMessage());
                     }));
                     queue.add(request);
+            Toast.makeText(this, "The currency has been converted!", Toast.LENGTH_LONG);
 
 
-                    currencySubmitButton = findViewById(R.id.currency_submitButton);
 
 
 
@@ -279,12 +280,41 @@ public class CurrencyConverter extends AppCompatActivity {
             TextView conversionText;
         public MyRowHolder (@NonNull View itemView) {
             super(itemView);
-            itemView.setOnClickListener(clk -> {
+            itemView.setOnClickListener( clk -> {
                 int position = getAbsoluteAdapterPosition();
-                SingleConversion selected = conversions.get(position);
 
-                convModel.selectedConversion.postValue(selected);
+                AlertDialog.Builder builder = new AlertDialog.Builder( CurrencyConverter.this);
+                builder.setMessage("Do you want to delete the conversion?")
+                        .setTitle("Question:")
+                        .setNegativeButton("No", (dialog, cl)->{ })
+                        .setPositiveButton("Yes", (dialog, cl)-> {
 
+                            SingleConversion m = conversions.get(position);
+                            Executor thread1 = Executors.newSingleThreadExecutor();
+                            thread1.execute(() -> {
+                                convDAO.deleteConversion(m);
+                                conversions.remove(position);
+
+                                runOnUiThread(() -> {  convAdapter.notifyDataSetChanged(); });
+
+                                Snackbar.make( binding.currencyRecyclerView, "Deleted your conversion", Snackbar.LENGTH_LONG)
+                                        .setAction("UNDO", click -> {
+                                            Executor convThread = Executors.newSingleThreadExecutor();
+                                            convThread.execute(() -> {
+                                                convDAO.insertConversion(m);
+
+                                                conversions.add(position,m );
+                                                runOnUiThread( () ->  convAdapter.notifyDataSetChanged());
+                                            });
+
+                                        } )
+                                        .show();
+                            });
+
+
+                            //myAdapter.notifyItemRemoved(position);
+                        })
+                        .create().show();
             });
             conversionText = itemView.findViewById(R.id.currencyTextView);
         }

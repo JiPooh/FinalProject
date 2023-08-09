@@ -30,4 +30,6 @@ public interface SingleConversionDAO {
     @Query("Select * from SingleConversion")
     List<SingleConversion> getAllConversions();
 
+    @Delete
+    public int deleteConversion(SingleConversion s);
 }
