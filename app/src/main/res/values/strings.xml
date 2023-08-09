@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">FinalProject</string>
-
-    <string name="currency_edit_message">Input Currency To Convert</string>
+    <string name="base_currency_edit_message">Input Base Currency Type</string>
+    <string name="end_currency_edit_message">Input Desired Currency Type</string>
+    <string name="amount_edit_message">Input Amount</string>
     <string name="currency_button_message">Submit</string>
+    <string name="helpMessage">1. Enter a base currency (ex: USD)\n2. Enter desired currency (ex: CAD)\n3. Enter amount to convert (ex: 1000)\n4. Press submit button</string>
+    <string name="helpTitle">How to use the Currency Converter</string>
+    <string name="result_message">The resulting currency is: $</string>
 
     <string name="main_edit_message">Input Airport Code</string>
     <string name="button1_message">Submit</string>
