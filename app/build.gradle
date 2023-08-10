@@ -22,10 +22,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-    buildFeatures {
-        viewBinding true
+    viewBinding {
+        enabled = true
     }
+
+
+
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -34,6 +36,7 @@ android {
 }
 
 dependencies {
+
     def room_version = "2.4.2"
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
