@@ -7,10 +7,18 @@
     android:layout_height="match_parent"
     tools:context=".TriviaActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/myToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/triviaList"
-        android:layout_width="406dp"
-        android:layout_height="290dp"
+        android:layout_width="400dp"
+        android:layout_height="298dp"
         android:layout_marginStart="1dp"
         android:layout_marginTop="15dp"
         app:layout_constraintStart_toStartOf="parent"

@@ -11,6 +11,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -37,7 +39,7 @@ public class TriviaActivity extends AppCompatActivity {
 
 
 
-    SharedPreferences  prefs = getSharedPreferences("MyData", Context.MODE_PRIVATE);
+     private SharedPreferences sharedPreferences;
 
 
 
@@ -47,7 +49,7 @@ public class TriviaActivity extends AppCompatActivity {
 
     String selectedCategory;
     RequestQueue queue = null;
-String defaultValue = "" ;
+
 
     String[] categoryIDs ;
     @Override
@@ -56,8 +58,13 @@ String defaultValue = "" ;
         queue = Volley.newRequestQueue(this);
         binding = ActivityTriviaBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        SharedPreferences  prefs = getSharedPreferences("MyData", Context.MODE_PRIVATE);
 
+    sharedPreferences = this.getSharedPreferences("YourPrefsName", MODE_PRIVATE);
+
+        int defaultQuestions = sharedPreferences.getInt("numQuestions", 10);
+        binding.questionText.setText(String.valueOf(defaultQuestions)) ;
+
+        setSupportActionBar(binding.myToolbar) ;
 
         RecyclerView triviaList = binding.triviaList;
         categoryIDs = getResources().getStringArray(R.array.category_ids);
@@ -67,6 +74,10 @@ String defaultValue = "" ;
         binding.randomButton.setOnClickListener(click -> {
             String questionNumber = binding.questionText.getText().toString();
             int qNumber = Integer.parseInt(questionNumber);
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("numQuestions", qNumber);
+            editor.apply();
 
             int selectedPosition = binding.categorySpinner.getSelectedItemPosition(); // get the position
 
@@ -110,6 +121,35 @@ String defaultValue = "" ;
                 R.array.category_names, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.categorySpinner.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.my_menu, menu);
+        return true ;
+    }
+
+    /**
+     * @param item The menu item that was selected.
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+
+        if (item.getItemId() == R.id.item1) {
+
+            Toast.makeText(this, "Version 1.0 created by Malek " , Toast.LENGTH_LONG).show();
+
+            return true;
+        } else {
+           showAlertDialog();
+            return true;
+        }
+
+        //return super.onOptionsItemSelected(item);
     }
 
 
