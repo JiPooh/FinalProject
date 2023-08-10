@@ -2,12 +2,14 @@ package algonquin.cst2335.finalproject;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,6 +21,8 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import algonquin.cst2335.finalproject.databinding.ActivityFlightTrackerBinding;
@@ -30,10 +34,11 @@ public class flightTracker extends AppCompatActivity {
     private static final String KEY_USER_NAME = "UserName";
 //    private FlightViewModel FlightViewModel;
     private ActivityFlightTrackerBinding binding;
-//    private FlightAdapter flightAdapter;
+    private RecyclerView.Adapter flightAdapter;
 //    private FlightService flightService;
     RequestQueue queue = null;
     private SharedPreferences sharedPreferences;
+
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
@@ -57,16 +62,31 @@ public class flightTracker extends AppCompatActivity {
         String savedUserName = sharedPreferences.getString(KEY_USER_NAME, "");
        binding.airportOption.setText(savedUserName);
         binding.airportOptionButton.setOnClickListener(clk ->{
-        String url = "http://api.aviationstack.com/v1/flights?access_key=a739c1a3655ac307307decd9e8892131?dep_iata=YOW";
+        String url = "http://api.aviationstack.com/v1/flights?access_key=a739c1a3655ac307307decd9e8892131&dep_iata="+binding.airportOption.getText().toString();
         JsonObjectRequest request = JsonObjectRequest(Request.Method.GET, url, null,
                 (response) -> {
                     try {
-                        JSONObject flightsObject = response.getJSONObject();
+                        JSONArray flightDataArray = response.getJSONArray("data");
 
+                        for (int i = 0; i < flightDataArray.length(); i++) {
+                            JSONObject flightObject = flightDataArray.getJSONObject(i);
+
+                            String gate = flightObject.getString("gate");
+                            String destination = flightObject.getString("destination");
+                            String delay = flightObject.getString("delay");
+                            String terminal = flightObject.getString("terminal");
+
+                            // Now you can use the extracted flight information
+                            // for populating your RecyclerView or other tasks
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                }, (error ->{
-
-                }));
+                },
+                (error) -> {
+                    Log.e("FlightTracker", "Volley Error: " + error.getMessage());
+                });
         queue.add(request);
         });
         toastButton = findViewById(R.id.airport_option_button);
